@@ -18,8 +18,6 @@ public class MainActivity extends Activity {
 
     private EditText editText;
     private Button button;
-    // private AsyncTranslator translator;
-    // private AsyncImageLoader imageLoader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,10 +27,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         editText = (EditText) findViewById(R.id.wordField);
-        button = (Button) findViewById(R.id.translateButton);
-
-        // translator = new AsyncTranslator();
-        // imageLoader = new AsyncImageLoader();
+        button = (Button) findViewById(R.id.translateButton); // TODO: no russian input :/
 
         final MainActivity context = this; // TODO: the same :/
 

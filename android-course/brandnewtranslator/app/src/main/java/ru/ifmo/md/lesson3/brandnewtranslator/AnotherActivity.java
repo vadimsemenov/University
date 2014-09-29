@@ -18,10 +18,10 @@ import android.widget.TextView;
  * Created by vadim on 28/09/14.
  */
 public class AnotherActivity extends Activity /*extends ListActivity*/ {
+    public static final int N = 10;
     private static final String TAG = "AnotherActivity";
-
-    public static Resources RESOURCES;
-
+    public static Resources RESOURCES; // TODO: remove it!
+    static AnotherActivity context; // TODO: fffuuuuu!
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,10 +31,11 @@ public class AnotherActivity extends Activity /*extends ListActivity*/ {
 
         Log.d(TAG, "onCreate() started");
 
+        context = this; // TODO: is it best solution you can find?
+
         Intent intent = getIntent();
         final String word = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
 
-        final AnotherActivity context = this; // TODO: is it best solution you can find?
         final ListView listView = (ListView) findViewById(R.id.imageListView);
 
 
@@ -77,7 +78,7 @@ public class AnotherActivity extends Activity /*extends ListActivity*/ {
         new AsyncImageLoader() {
             @Override
             protected void onProgressUpdate(Bitmap... values) {
-                super.onProgressUpdate(values[0]);
+                super.onProgressUpdate(values);
                 Log.d(super.TAG, "onProgressUpdate() works");
                 adapter.add(values[0]);
                 adapter.notifyDataSetChanged();

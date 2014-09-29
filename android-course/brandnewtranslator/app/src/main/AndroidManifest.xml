@@ -3,6 +3,8 @@
     package="ru.ifmo.md.lesson3.brandnewtranslator"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
