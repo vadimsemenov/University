@@ -2,7 +2,6 @@ package ru.ifmo.md.lesson3.brandnewtranslator;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -18,42 +17,33 @@ import android.widget.TextView;
  * Created by vadim on 28/09/14.
  */
 public class AnotherActivity extends Activity /*extends ListActivity*/ {
-    public static final int N = 10;
+    public static final int NEED_IMAGES = 10;
+
     private static final String TAG = "AnotherActivity";
-    public static Resources RESOURCES; // TODO: remove it!
-    static AnotherActivity context; // TODO: fffuuuuu!
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_another);
-        RESOURCES = getResources();
 
         Log.d(TAG, "onCreate() started");
-
-        context = this; // TODO: is it best solution you can find?
 
         Intent intent = getIntent();
         final String word = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
 
-        final ListView listView = (ListView) findViewById(R.id.imageListView);
-
-
-        final ArrayAdapter<Bitmap> adapter = new ArrayAdapter<Bitmap>(context, android.R.layout.simple_list_item_1, R.id.listViewItem) {
+        final ArrayAdapter<Bitmap> adapter = new ArrayAdapter<Bitmap>(this, android.R.layout.simple_list_item_1, R.id.listViewItem) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 Log.d("Adapter", "works!");
                 ImageView imageView;
                 if (convertView == null) {
-                    imageView = new ImageView(context);
-                    //ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    //imageView.setLayoutParams(params);
+                    imageView = new ImageView(AnotherActivity.this);
                 } else {
                     imageView = (ImageView) convertView;
                 }
                 Bitmap bitmap = getItem(position);
                 if (bitmap == null) {
-                    bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.loading);
+                    bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.not_found);
                 }
                 imageView.setScaleType(ImageView.ScaleType.CENTER);
                 imageView.setMinimumHeight(bitmap.getHeight());
@@ -62,8 +52,10 @@ public class AnotherActivity extends Activity /*extends ListActivity*/ {
                 return imageView;
             }
         };
-        listView.setAdapter(adapter);
+
         final TextView textView = (TextView) findViewById(R.id.translatedTextView);
+        final ListView listView = (ListView) findViewById(R.id.imageListView);
+        listView.setAdapter(adapter);
 
         new AsyncTranslator() {
             @Override
@@ -81,7 +73,6 @@ public class AnotherActivity extends Activity /*extends ListActivity*/ {
                 super.onProgressUpdate(values);
                 Log.d(super.TAG, "onProgressUpdate() works");
                 adapter.add(values[0]);
-                adapter.notifyDataSetChanged();
             }
         }.execute(word);
     }

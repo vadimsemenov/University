@@ -26,10 +26,8 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        editText = (EditText) findViewById(R.id.wordField);
-        button = (Button) findViewById(R.id.translateButton); // TODO: no russian input :/
-
-        final MainActivity context = this; // TODO: the same :/
+        editText = (EditText) findViewById(R.id.wordField); // TODO: add hint
+        button = (Button) findViewById(R.id.translateButton);
 
         button.setOnClickListener(new View.OnClickListener() {
             private static final String TAG = "Anon OnClickListener";
@@ -37,8 +35,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View view) {
                 Log.d(TAG, "onClick() works");
-                // start anotherActivity here
-                Intent intent = new Intent(context, AnotherActivity.class);
+                Intent intent = new Intent(MainActivity.this, AnotherActivity.class);
                 String word = editText.getText().toString();
                 intent.putExtra(EXTRA_MESSAGE, word);
                 startActivity(intent);

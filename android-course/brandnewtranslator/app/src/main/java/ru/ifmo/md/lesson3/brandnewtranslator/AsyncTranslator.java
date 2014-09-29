@@ -3,10 +3,18 @@ package ru.ifmo.md.lesson3.brandnewtranslator;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import java.net.URL;
-import javax.net.ssl.HttpsURLConnection;
-import java.io.*;
+import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class AsyncTranslator extends AsyncTask<String, Void, String> {
     protected static final String TAG = "AsyncTranslator";
@@ -19,6 +27,7 @@ public class AsyncTranslator extends AsyncTask<String, Void, String> {
         Log.d(TAG, "doInBackground() started");
 
         String word = strings[0];
+        String translatedWord = null;
 
         try {
             URL url = new URL(MAIN_URL + "?key=" + API_KEY + "&text=" + word + "&lang=" + LANGUAGE);
@@ -32,10 +41,17 @@ public class AsyncTranslator extends AsyncTask<String, Void, String> {
             while ((inputString = streamReader.readLine()) != null)
                 responseStrBuilder.append(inputString);
             JSONObject answer = new JSONObject(responseStrBuilder.toString());
-            String translatedWord = answer.get("text").toString();
-            return translatedWord;
-        } catch (Throwable t) {
-            return "fail :(";
+            translatedWord = answer.get("text").toString();
+        } catch (MalformedURLException e) {
+            Log.e(TAG, e.getMessage());
+        } catch (UnsupportedEncodingException e) {
+            Log.e(TAG, e.getMessage());
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage());
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage());
         }
+
+        return translatedWord;
     }
 }

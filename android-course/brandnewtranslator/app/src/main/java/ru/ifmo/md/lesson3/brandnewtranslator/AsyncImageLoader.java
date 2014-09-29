@@ -28,16 +28,14 @@ public class AsyncImageLoader extends AsyncTask<String, Bitmap, List<Bitmap>> {
 
 //    private ProgressDialog simpleWaitDialog;
 
-    String[] urls = new String[AnotherActivity.N];
-
-
     @Override
     protected List<Bitmap> doInBackground(String... words) {
         String uri = "http://yandex.ru/images/search?text=" + words[0] + "&isize=medium&itype=jpg"; //"&isize=eq&iw=50&ih=50&itype=jpg";
         HttpClient httpclient = new DefaultHttpClient();
         HttpResponse response;
-        String responseString = null;
+        String responseString;
         List<Bitmap> bm = new ArrayList<Bitmap>();
+        String[] urls = new String[AnotherActivity.NEED_IMAGES];
         try {
             response = httpclient.execute(new HttpGet(uri));
             StatusLine statusLine = response.getStatusLine();
@@ -48,7 +46,7 @@ public class AsyncImageLoader extends AsyncTask<String, Bitmap, List<Bitmap>> {
                 responseString = out.toString();
                 int prev = 0;
                 int i = 0;
-                while (i < AnotherActivity.N) {
+                while (i < AnotherActivity.NEED_IMAGES) {
                     int pos2 = responseString.indexOf(".jpg", prev);
                     int pos = responseString.indexOf("http://", pos2 - 100);
                     //int pos = responseString.substring(prev, pos2).lastIndexOf("http://"); // why it doesn't work?!
@@ -68,7 +66,9 @@ public class AsyncImageLoader extends AsyncTask<String, Bitmap, List<Bitmap>> {
                 throw new IOException(statusLine.getReasonPhrase());
             }
         } catch (ClientProtocolException e) {
+            Log.e(TAG, e.getMessage());
         } catch (IOException e) {
+            Log.e(TAG, e.getMessage());
         }
         return bm;
     }
@@ -82,13 +82,12 @@ public class AsyncImageLoader extends AsyncTask<String, Bitmap, List<Bitmap>> {
     @Override
     protected void onPostExecute(List<Bitmap> result) {
         super.onPostExecute(result);
-        Log.i(TAG, "onPostExecute Called");
-        /*
-        for (int i = 0; i < AnotherActivity.N; i++) {
-            images.add(result.get(i));
-        }
-        */
-        Log.e("ImageDownloader", "bitmap");
+        Log.d(TAG, "onPostExecute Called");
+
+//        for (int i = 0; i < AnotherActivity.N; i++) {
+//            images.add(result.get(i));
+//        }
+        Log.d("ImageDownloader", "bitmap"); // what does it mean?
 //            ArrayAdapter<Bitmap> adapter = new ArrayAdapter<Bitmap>(SecondActivity.this, android.R.layout.simple_list_item_1, images);
 //            lvMain.setAdapter(adapter);
 //        simpleWaitDialog.dismiss();
@@ -123,25 +122,8 @@ public class AsyncImageLoader extends AsyncTask<String, Bitmap, List<Bitmap>> {
         } catch (Exception e) {
             getRequest.abort();
             Log.e("ImageDownloader", "Something went wrong while" +
-                    " retrieving bitmap from " + url + e.toString());
+                    " retrieving bitmap from " + url + "\nError: " + e.toString());
         }
         return null;
     }
 }
-
- /*
-        extends AsyncTask<String, Bitmap, Bitmap> {
-    protected static final String TAG = "AsyncImageLoader";
-
-    @Override
-    protected Bitmap doInBackground(String... strings) {
-        Log.d(TAG, "doInBackground() worked with word '" + strings[0] + "'");
-
-        Bitmap result = BitmapFactory.decodeResource(AnotherActivity.RESOURCES, R.drawable.source);
-
-        for (int i = 0; i < 10; ++i)
-            publishProgress(result);
-        return result;
-    }
-}
-*/
