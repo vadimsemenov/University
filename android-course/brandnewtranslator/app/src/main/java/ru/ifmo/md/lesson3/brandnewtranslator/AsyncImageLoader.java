@@ -26,12 +26,10 @@ import java.util.List;
 public class AsyncImageLoader extends AsyncTask<String, Bitmap, List<Bitmap>> {
     protected static final String TAG = "AsyncImageLoader";
 
-//    private ProgressDialog simpleWaitDialog;
-
     @Override
     protected List<Bitmap> doInBackground(String... strings) {
         String word = strings[0].trim().replaceAll("\\s+", "%20");
-        String uri = "http://yandex.ru/images/search?text=" + word + "&isize=large&itype=jpg"; //"&isize=eq&iw=50&ih=50&itype=jpg";
+        String uri = "http://yandex.ru/images/search?text=" + word + "&isize=large&itype=jpg";
         HttpClient httpclient = new DefaultHttpClient();
         HttpResponse response;
         String responseString;
@@ -50,7 +48,6 @@ public class AsyncImageLoader extends AsyncTask<String, Bitmap, List<Bitmap>> {
                 while (i < AnotherActivity.NEED_IMAGES) {
                     int pos2 = responseString.indexOf(".jpg", prev);
                     int pos = responseString.indexOf("http://", pos2 - 100);
-                    //int pos = responseString.substring(prev, pos2).lastIndexOf("http://"); // why it doesn't work?!
                     if (pos < pos2) {
                         urls[i] = responseString.substring(pos, pos2 + 4);
                         Bitmap bitmap = downloadBitmap(urls[i]);
@@ -72,26 +69,6 @@ public class AsyncImageLoader extends AsyncTask<String, Bitmap, List<Bitmap>> {
             Log.e(TAG, e.getMessage());
         }
         return bm;
-    }
-
-    @Override
-    protected void onPreExecute() {
-        Log.i("Async-Example", "onPreExecute Called");
-//        simpleWaitDialog = ProgressDialog.show(AnotherActivity.context, "Wait", "Downloading Image");
-    }
-
-    @Override
-    protected void onPostExecute(List<Bitmap> result) {
-        super.onPostExecute(result);
-        Log.d(TAG, "onPostExecute Called");
-
-//        for (int i = 0; i < AnotherActivity.N; i++) {
-//            images.add(result.get(i));
-//        }
-        Log.d("ImageDownloader", "bitmap"); // what does it mean?
-//            ArrayAdapter<Bitmap> adapter = new ArrayAdapter<Bitmap>(SecondActivity.this, android.R.layout.simple_list_item_1, images);
-//            lvMain.setAdapter(adapter);
-//        simpleWaitDialog.dismiss();
     }
 
     private Bitmap downloadBitmap(String url) {
