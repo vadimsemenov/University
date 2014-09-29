@@ -26,7 +26,7 @@ public class AsyncTranslator extends AsyncTask<String, Void, String> {
     protected String doInBackground(String... strings) {
         Log.d(TAG, "doInBackground() started");
 
-        String word = strings[0];
+        String word = strings[0].trim();
         String translatedWord = null;
 
         try {

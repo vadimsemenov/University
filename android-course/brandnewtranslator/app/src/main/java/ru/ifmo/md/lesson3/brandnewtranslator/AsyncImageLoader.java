@@ -29,8 +29,9 @@ public class AsyncImageLoader extends AsyncTask<String, Bitmap, List<Bitmap>> {
 //    private ProgressDialog simpleWaitDialog;
 
     @Override
-    protected List<Bitmap> doInBackground(String... words) {
-        String uri = "http://yandex.ru/images/search?text=" + words[0] + "&isize=medium&itype=jpg"; //"&isize=eq&iw=50&ih=50&itype=jpg";
+    protected List<Bitmap> doInBackground(String... strings) {
+        String word = strings[0].trim().replaceAll("\\s+", "%20");
+        String uri = "http://yandex.ru/images/search?text=" + word + "&isize=large&itype=jpg"; //"&isize=eq&iw=50&ih=50&itype=jpg";
         HttpClient httpclient = new DefaultHttpClient();
         HttpResponse response;
         String responseString;
