@@ -4,5 +4,7 @@
     <string name="app_name">Brand New Translator</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="enter_word">Enter word</string>
+    <string name="test">ttest</string>
 
 </resources>

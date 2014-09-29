@@ -1,17 +1,54 @@
 package ru.ifmo.md.lesson3.brandnewtranslator;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 
 
 public class MainActivity extends Activity {
+    public static final String EXTRA_MESSAGE = "brandnewtranslator.MainActivity extra message";
+
+    private static final String TAG = "MainActivity";
+
+    private EditText editText;
+    private Button button;
+    // private AsyncTranslator translator;
+    // private AsyncImageLoader imageLoader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate() started");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        editText = (EditText) findViewById(R.id.wordField);
+        button = (Button) findViewById(R.id.translateButton);
+
+        // translator = new AsyncTranslator();
+        // imageLoader = new AsyncImageLoader();
+
+        final MainActivity context = this; // TODO: the same :/
+
+        button.setOnClickListener(new View.OnClickListener() {
+            private static final String TAG = "Anon OnClickListener";
+
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "onClick() works");
+                // start anotherActivity here
+                Intent intent = new Intent(context, AnotherActivity.class);
+                String word = editText.getText().toString();
+                intent.putExtra(EXTRA_MESSAGE, word);
+                startActivity(intent);
+            }
+        });
     }
 
 
