@@ -62,7 +62,8 @@ public class AnotherActivity extends Activity /*extends ListActivity*/ {
             protected void onPostExecute(String s) {
                 super.onPostExecute(s);
                 Log.d(super.TAG, "onPostExecute() works: " + s);
-                textView.setText(s.toCharArray(), 0, s.length());
+                String output = word + " - " + s.substring(2, s.length() - 2);
+                textView.setText(output.toCharArray(), 0, output.length());
                 textView.invalidate();
             }
         }.execute(word);
