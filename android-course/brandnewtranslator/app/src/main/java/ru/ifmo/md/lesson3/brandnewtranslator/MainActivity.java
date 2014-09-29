@@ -50,7 +50,7 @@ public class MainActivity extends Activity {
 
     Button btn;
     Intent sAct;
-    String word = "papa";
+    String word = "мишка";
 //    SecondActivity sAct;
     @Override
     public void onCreate(Bundle savedInstanceState) {

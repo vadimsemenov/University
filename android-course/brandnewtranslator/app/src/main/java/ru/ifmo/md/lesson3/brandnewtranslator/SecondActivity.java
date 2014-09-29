@@ -15,10 +15,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Gallery;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,10 +54,23 @@ public class SecondActivity extends Activity {
     private ProgressDialog simpleWaitDialog;
     public static int N = 10;
     public String word;
-    String[] urls = new String[20];
+    String[] urls = new String[N];
     List<Bitmap> images = new ArrayList<Bitmap>();
+    public ListView lvMain;
     int cur = 0;
     private ImageView d;
+    private ImageView d1;
+    private ImageView d2;
+    private ImageView d3;
+    private ImageView d4;
+    private ImageView d5;
+    private ImageView d6;
+    private ImageView d7;
+    private ImageView d8;
+    private ImageView d9;
+    private ImageView d10;
+    Button btn;
+    Intent sAct;
     //    ImageView d2 = (ImageView) findViewById(R.id.imageView1);
     ImageView selectedImage;
 
@@ -64,9 +79,20 @@ public class SecondActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.images);
         word = getIntent().getStringExtra("word");
-        new RequestTask().execute("http://yandex.ru/images/search?text=" + word + "&isize=eq&iw=100&ih=100");
-       // d = (ImageView) findViewById(R.id.imageView);
-       // text = (TextView) findViewById(R.id.textView2);
+//        ListView lvMain = (ListView) findViewById(R.id.lvMain);
+        new RequestTask().execute("http://yandex.ru/images/search?text=" + word + "&isize=eq&iw=50&ih=50");
+//        ArrayAdapter<Bitmap> adapter = new ArrayAdapter<Bitmap>(this, android.R.layout.simple_list_item_1, images);
+//        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, as);
+//        lvMain.setAdapter(adapter);
+        btn = (Button) findViewById(R.id.button);
+        sAct = new Intent(SecondActivity.this, MainActivity.class);
+        btn.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                startActivity(sAct);
+            }
+        });
     }
 
     class RequestTask extends AsyncTask<String, Integer, List<Bitmap>> {
@@ -95,7 +121,7 @@ public class SecondActivity extends Activity {
                             bm.add(downloadBitmap(urls[i]));
                             i++;
                         }
-                        prev = pos2 + 5;
+                        prev = responseString.indexOf("img class", pos2 + 5);
                     }
                     return bm;
                 } else {
@@ -121,7 +147,30 @@ public class SecondActivity extends Activity {
             for (int i = 0; i < N; i++) {
                 images.add(result.get(i));
             }
+            Log.e("ImageDownloader", "bitmap");
+            d = (ImageView) findViewById(R.id.imageView);
+            d2 = (ImageView) findViewById(R.id.imageView2);
+            d3 = (ImageView) findViewById(R.id.imageView3);
+            d4 = (ImageView) findViewById(R.id.imageView4);
+            d5 = (ImageView) findViewById(R.id.imageView5);
+            d6 = (ImageView) findViewById(R.id.imageView6);
+            d7 = (ImageView) findViewById(R.id.imageView7);
+            d8 = (ImageView) findViewById(R.id.imageView8);
+            d9 = (ImageView) findViewById(R.id.imageView9);
+            d10 = (ImageView) findViewById(R.id.imageView10);
+
             d.setImageBitmap(images.get(0));
+            d2.setImageBitmap(images.get(1));
+            d3.setImageBitmap(images.get(2));
+            d4.setImageBitmap(images.get(3));
+            d5.setImageBitmap(images.get(4));
+            d6.setImageBitmap(images.get(5));
+            d7.setImageBitmap(images.get(6));
+            d8.setImageBitmap(images.get(7));
+            d9.setImageBitmap(images.get(8));
+            d10.setImageBitmap(images.get(9));
+//            ArrayAdapter<Bitmap> adapter = new ArrayAdapter<Bitmap>(SecondActivity.this, android.R.layout.simple_list_item_1, images);
+//            lvMain.setAdapter(adapter);
             simpleWaitDialog.dismiss();
         }
 
@@ -133,7 +182,7 @@ public class SecondActivity extends Activity {
                 final int statusCode = response.getStatusLine().getStatusCode();
                 if (statusCode != HttpStatus.SC_OK) {
                     Log.w("ImageDownloader", "Error " + statusCode +
-                            " while retrieving bitmap from " + url);
+                            " while retrieving bitmap from " + url + " ");
                     return null;
                 }
                 final HttpEntity entity = response.getEntity();
