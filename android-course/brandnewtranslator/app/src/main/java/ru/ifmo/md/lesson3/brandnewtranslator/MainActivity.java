@@ -3,12 +3,15 @@ package ru.ifmo.md.lesson3.brandnewtranslator;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 
 public class MainActivity extends Activity {
@@ -26,8 +29,25 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        editText = (EditText) findViewById(R.id.wordField); // TODO: add hint
+        editText = (EditText) findViewById(R.id.wordField);
         button = (Button) findViewById(R.id.translateButton);
+
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+                // nothing
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+                // nothing
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                button.setEnabled(editText.getText().length() > 0);
+            }
+        });
 
         button.setOnClickListener(new View.OnClickListener() {
             private static final String TAG = "Anon OnClickListener";
@@ -38,6 +58,7 @@ public class MainActivity extends Activity {
                 Intent intent = new Intent(MainActivity.this, AnotherActivity.class);
                 String word = editText.getText().toString();
                 intent.putExtra(EXTRA_MESSAGE, word);
+                editText.setText("", TextView.BufferType.EDITABLE);
                 startActivity(intent);
             }
         });
