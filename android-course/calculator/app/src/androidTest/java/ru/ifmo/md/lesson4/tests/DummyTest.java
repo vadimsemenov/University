@@ -8,6 +8,9 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import ru.ifmo.md.lesson4.CalculationEngineFactory;
+import ru.ifmo.md.lesson4.CalculationException;
+
 @Config(emulateSdk = 18)
 @RunWith(RobolectricTestRunner.class)
 public class DummyTest {
@@ -18,6 +21,10 @@ public class DummyTest {
 
     @Test
     public void testWhoppingComplex() {
-        Assert.assertTrue(Boolean.TRUE);
+        try {
+            Assert.assertEquals(10d, CalculationEngineFactory.defaultEngine().calculate("5+5"));
+        } catch (CalculationException e) {
+            Assert.fail("Exception happened " + e);
+        }
     }
 }
