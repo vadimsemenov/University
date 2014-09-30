@@ -1,4 +1,15 @@
+buildscript {
+
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.robolectric.gradle:gradle-android-test-plugin:0.10.0'
+    }
+}
+
 apply plugin: 'com.android.application'
+apply plugin: 'android-test'
 
 android {
     compileSdkVersion 20
@@ -21,4 +32,10 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestCompile 'junit:junit:4.10'
+    androidTestCompile 'org.robolectric:robolectric:2.3'
+}
+
+androidTest {
+    include '**/*Test.class'
 }
