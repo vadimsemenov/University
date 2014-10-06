@@ -6,7 +6,7 @@ import android.util.Log;
  * Simple recursive descent parser for following simple grammar:
  * <p/>
  * expression = ["+"|"-"] term {("+"|"-") term}
- * term = factor {("×"|"÷") factor}
+ * term = factor {("*"|"/") factor}
  * factor = number | "(" expression ")"
  *
  * @author Vadim Semenov
@@ -118,10 +118,10 @@ public class Calculator implements CalculationEngine {
                 }
                 pointer++;
                 return Lexeme.MINUS;
-            case '×':
+            case '*':
                 pointer++;
                 return Lexeme.TIMES;
-            case '÷':
+            case '/':
                 pointer++;
                 return Lexeme.OBELUS;
             default:
