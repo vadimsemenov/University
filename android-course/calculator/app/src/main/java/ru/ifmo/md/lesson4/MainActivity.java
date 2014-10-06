@@ -30,7 +30,8 @@ public class MainActivity extends Activity {
                 try {
                     result = String.valueOf(calculationEngine.calculate(expression));
                 } catch (CalculationException e) {
-                    Toast.makeText(MainActivity.this, e.getLocalizedMessage(), Toast.LENGTH_LONG);
+                    Log.e(TAG, e.getMessage() == null ? "empty message" : e.getMessage());
+                    // Toast.makeText(MainActivity.this, e.getLocalizedMessage(), Toast.LENGTH_LONG);
                 }
                 editText.setText(result);
             }
