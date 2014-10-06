@@ -32,7 +32,7 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile 'junit:junit:4.10'
+    androidTestCompile 'junit:junit:4.11'
     androidTestCompile 'org.robolectric:robolectric:2.3'
 }
 
