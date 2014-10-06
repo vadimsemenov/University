@@ -3,7 +3,7 @@ package ru.ifmo.md.lesson4;
 import android.util.Log;
 
 /**
- * Simple recursive descent parser for following simple gram:
+ * Simple recursive descent parser for following simple grammar:
  * <p/>
  * expression = ["+"|"-"] term {("+"|"-") term}
  * term = factor {("×"|"÷") factor}
