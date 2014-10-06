@@ -8,4 +8,8 @@ public class CalculationException extends Exception {
     public CalculationException(Exception cause) {
         super(cause);
     }
+
+    public CalculationException(String message) {
+        super(message);
+    }
 }

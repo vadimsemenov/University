@@ -3,10 +3,21 @@ package ru.ifmo.md.lesson4;
 import android.util.Log;
 
 /**
- * Created by vadim on 06/10/14.
+ * Simple recursive descent parser for following simple gram:
+ * <p/>
+ * expression = ["+"|"-"] term {("+"|"-") term}
+ * term = factor {("×"|"÷") factor}
+ * factor = number | "(" expression ")"
+ *
+ * @author Vadim Semenov
  */
 public class Calculator implements CalculationEngine {
     private static final String TAG = "Calculator";
+
+    private Lexeme nextLexeme;
+    private double nextNumber;
+    private int pointer;
+    private String expression;
 
     @Override
     public double calculate(String expression) throws CalculationException {
@@ -15,65 +26,62 @@ public class Calculator implements CalculationEngine {
     }
 
     private double parseExpression() throws CalculationException {
-        double result = parseSummand();
+        double result = parseTerm();
         while (nextLexeme == Lexeme.PLUS || nextLexeme == Lexeme.MINUS) {
             Lexeme prevLexeme = nextLexeme;
             nextLexeme();
             if (prevLexeme == Lexeme.PLUS) {
-                result += parseSummand();
+                result += parseTerm();
             } else {
-                result -= parseSummand();
+                result -= parseTerm();
             }
         }
         if (nextLexeme != Lexeme.EOE && nextLexeme != Lexeme.CLOSED) {
-            Log.d(TAG, "yoy " + nextLexeme);
             throw new CalculationException();
         }
-        Log.d(TAG, "result = " + result);
         return result;
     }
 
-    private double parseSummand() throws CalculationException {
-        double result = parseMultipiler();
-        Log.d(TAG, "yo1");
+    private double parseTerm() throws CalculationException {
+        double result = parseFactor();
         while (nextLexeme == Lexeme.TIMES || nextLexeme == Lexeme.OBELUS) {
             Lexeme prevLexeme = nextLexeme;
             nextLexeme();
             if (prevLexeme == Lexeme.TIMES) {
-                result *= parseMultipiler();
+                result *= parseFactor();
             } else {
-                result /= parseMultipiler();
+                result /= parseFactor();
             }
         }
         if (nextLexeme != Lexeme.PLUS && nextLexeme != Lexeme.MINUS &&
                 nextLexeme != Lexeme.EOE && nextLexeme != Lexeme.CLOSED) {
-            Log.d(TAG, "yo3 " + nextLexeme);
             throw new CalculationException();
         }
-        Log.d(TAG, "summand = " + result);
         return result;
     }
 
-    private double parseMultipiler() throws CalculationException {
+    private double parseFactor() throws CalculationException {
         double result;
         if (nextLexeme == Lexeme.OPENED) {
             nextLexeme();
             result = parseExpression();
-            assert nextLexeme == Lexeme.CLOSED;
+            if (nextLexeme != Lexeme.CLOSED) {
+                throw new CalculationException("can't find closed parenthesis; found: '" + nextLexeme + "'");
+            }
             nextLexeme();
         } else if (nextLexeme == Lexeme.NUMBER) {
             result = nextNumber;
             nextLexeme();
         } else {
-            throw new CalculationException();
+            throw new CalculationException("can't parse factor; found: '" + nextLexeme + "'");
         }
-        Log.d(TAG, "multipiler = " + result);
         return result;
     }
 
     private void init(String expression) throws CalculationException {
         this.expression = expression;
         this.pointer = 0;
+        this.nextLexeme = null;
         nextLexeme();
     }
 
@@ -95,40 +103,59 @@ public class Calculator implements CalculationEngine {
                 pointer++;
                 return Lexeme.CLOSED;
             case '+':
+                if (nextLexeme == null || nextLexeme == Lexeme.PLUS || nextLexeme == Lexeme.MINUS ||
+                        nextLexeme == Lexeme.TIMES || nextLexeme == Lexeme.OBELUS) {
+                    nextNumber = parseNumber();
+                    return Lexeme.NUMBER;
+                }
                 pointer++;
                 return Lexeme.PLUS;
             case '-':
+                if (nextLexeme == null || nextLexeme == Lexeme.PLUS || nextLexeme == Lexeme.MINUS ||
+                        nextLexeme == Lexeme.TIMES || nextLexeme == Lexeme.OBELUS) {
+                    nextNumber = parseNumber();
+                    return Lexeme.NUMBER;
+                }
                 pointer++;
                 return Lexeme.MINUS;
-            case '*':
+            case '×':
                 pointer++;
                 return Lexeme.TIMES;
-            case '/':
+            case '÷':
                 pointer++;
                 return Lexeme.OBELUS;
             default:
-                int ptr = pointer + 1;
-                while (ptr < expression.length() && belongToDecimal(expression.charAt(ptr))) {
-                    ptr++;
-                }
-                try {
-                    nextNumber = Double.parseDouble(expression.substring(pointer, ptr));
-                } catch (NumberFormatException e) {
-                    throw new CalculationException(e);
-                }
-                pointer = ptr;
+                nextNumber = parseNumber();
                 return Lexeme.NUMBER;
         }
     }
 
-    private boolean belongToDecimal(char c) {
-        return c == '.' || ('0' <= c && c <= '9');
+    private double parseNumber() throws CalculationException {
+        int ptr = pointer;
+        boolean positive = true;
+        while (ptr < expression.length() && (expression.charAt(ptr) == '+' || expression.charAt(ptr) == '-')) {
+            if (expression.charAt(ptr) == '-') {
+                positive = !positive;
+            }
+            ptr++;
+        }
+        int end = ptr + 1;
+        while (end < expression.length() && belongToDouble(expression.charAt(end))) {
+            end++;
+        }
+        double result;
+        try {
+            result = Double.parseDouble(expression.substring(ptr, end));
+        } catch (NumberFormatException e) {
+            throw new CalculationException(e);
+        }
+        pointer = end;
+        return positive ? result : -result;
     }
 
-    private enum Lexeme { NUMBER, PLUS, MINUS, TIMES, OBELUS, OPENED, CLOSED, EOE };
-    private Lexeme nextLexeme;
-    private double nextNumber;
+    private boolean belongToDouble(char c) {
+        return c == '.' || c == 'e' || c == 'E' || ('0' <= c && c <= '9');
+    }
 
-    private int pointer;
-    private String expression;
+    private enum Lexeme {NUMBER, PLUS, MINUS, TIMES, OBELUS, OPENED, CLOSED, EOE}
 }
