@@ -143,6 +143,14 @@ public class Calculator implements CalculationEngine {
         while (end < expression.length() && belongToDouble(expression.charAt(end))) {
             end++;
         }
+        if (Character.toLowerCase(expression.charAt(end - 1)) == 'e') {
+            while (expression.charAt(end) == '+' || expression.charAt(end) == '-') {
+                end++;
+            }
+            while (end < expression.length() && belongToDouble(expression.charAt(end))) {
+                end++;
+            }
+        }
         double result;
         try {
             result = Double.parseDouble(expression.substring(ptr, end));
