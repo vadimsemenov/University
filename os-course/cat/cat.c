@@ -1,9 +1,10 @@
 #include "helpers.h"
 #include <stdio.h>
 
+const size_t BUF_SIZE = 1024;
+
 int main(void) {
-  static const size_t BUF_SIZE = 1024;
-  static char buf[BUF_SIZE];
+  static char buf[1024];
   while (1) {
     ssize_t readed = read_(STDIN_FILENO, buf, BUF_SIZE);
     if (readed == -1) {
