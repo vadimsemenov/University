@@ -1,8 +1,7 @@
 #include "helpers.h"
-
 #include <stdio.h>
 
-int main(int argc, char **argv) {
+int main(void) {
   static const size_t BUF_SIZE = 1024;
   static char buf[BUF_SIZE];
   while (1) {
@@ -22,3 +21,4 @@ int main(int argc, char **argv) {
   }
   return 0;
 }
+
