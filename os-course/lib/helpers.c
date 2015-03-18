@@ -44,6 +44,7 @@ ssize_t read_until(int fd, void *buf, size_t count, const char delimiter) {
         break;
       }
     }
+    allready_readed += readed;
   }
   return allready_readed;
 }
