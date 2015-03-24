@@ -1,5 +1,25 @@
 #include "helpers.h"
 
+int spawn(const char *file, char *const argv[]) {
+  pid_t child_id = fork();
+  if (child_id == -1) {
+    goto ERROR;
+  } else if (child_id == 0) { /* Child thread */
+    execvp(file, argv);
+    goto ERROR;
+  } else { /* Parent thread */
+    int status;
+    wait(&status); /* There is only one child */
+    if (WIFEXITED(status)) {
+      return WEXITSTATUS(status);
+    }
+    goto ERROR;
+  }
+
+ERROR:
+  return -1;
+}
+
 ssize_t read_(int fd, void *buf, size_t count) {
   size_t allready_readed = 0;
   while (allready_readed < count) {
