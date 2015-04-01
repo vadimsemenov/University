@@ -14,6 +14,6 @@ void buf_free(struct buf_t *);
 size_t buf_capacity(const struct buf_t *);
 size_t buf_size(const struct buf_t *);
 
-ssize_t buf_fill(int fd, buf_t *buf, size_t required);
-ssize_t buf_flush(int fd, buf_t *buf, size_t required);
+ssize_t buf_fill(int fd, struct buf_t *buf, size_t required);
+ssize_t buf_flush(int fd, struct buf_t *buf, size_t required);
 

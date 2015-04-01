@@ -48,7 +48,7 @@ ssize_t buf_fill(int fd, struct buf_t *buf, size_t required) {
   return buf->size;
 }
 
-ssize_t buf_flush(int fd, buf_t *buf, size_t required) {
+ssize_t buf_flush(int fd, struct buf_t *buf, size_t required) {
   assert(buf);
   ssize_t cnt;
   size_t offset = 0;
