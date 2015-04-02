@@ -7,7 +7,7 @@
 #define BUF_SIZE 4096
 
 /**
- * returns 0 if succeed, -1 if error ocured, 1 otherwise
+ * returns 0 if succeed, -1 if error ocсured, 1 otherwise
  */
 ssize_t check(char **args, size_t position, char *arg, size_t length) {
   char foo = arg[length]; 
