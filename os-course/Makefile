@@ -21,4 +21,5 @@ clean:
 	$(MAKE) clean -C $(CAT_DIR)
 	$(MAKE) clean -C $(REVWORDS_DIR)
 	$(MAKE) clean -C $(FILTER_DIR)
+	$(MAKE) clean -C $(BUFCAT_DIR)
 
