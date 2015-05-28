@@ -4,10 +4,10 @@ LIB_DIR = ../lib
 
 all: cat
 
-cat: libhelpers
+cat: $(LIB_DIR)/libhelpers.so
 	$(CC) $(CFLAGS) cat.c -o cat -I$(LIB_DIR) -L$(LIB_DIR) -lhelpers -Wl,-rpath,$(LIB_DIR) 
 
-libhelpers:
+$(LIB_DIR)/libhelpers.so:
 	$(MAKE) -C $(LIB_DIR)
 
 test:

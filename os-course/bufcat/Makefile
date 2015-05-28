@@ -4,10 +4,10 @@ LIB_DIR = ../lib
 
 all: bufcat
 
-bufcat: libhelpers
+bufcat: $(LIB_DIR)/libhelpers.so
 	$(CC) $(CFLAGS) bufcat.c -o bufcat -I$(LIB_DIR) -L$(LIB_DIR) -lbufio -Wl,-rpath,$(LIB_DIR) 
 
-libhelpers:
+$(LIB_DIR)/libhelpers.so:
 	$(MAKE) -C $(LIB_DIR)
 
 test:

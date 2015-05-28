@@ -1,12 +1,12 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c99
 
-all: libhelpers libbufio
+all: libhelpers.so libbufio.so
 
-libhelpers: helpers.c
+libhelpers.so: helpers.c
 	$(CC) $(CFLAGS) -shared -o libhelpers.so -fPIC helpers.c 
 
-libbufio: bufio.c
+libbufio.so: bufio.c
 	$(CC) $(CFLAGS) -shared -o libbufio.so -fPIC bufio.c
 
 clean:

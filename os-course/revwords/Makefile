@@ -4,10 +4,10 @@ LIB_DIR = ../lib
 
 all: revwords
 
-revwords: helpers
+revwords: $(LIB_DIR)/libhelpers.so 
 	$(CC) $(CFLAGS) revwords.c -o revwords -I$(LIB_DIR) -L$(LIB_DIR) -lhelpers -Wl,-rpath,$(LIB_DIR)
 
-helpers: 
+$(LIB_DIR)/libhelpers.so:
 	$(MAKE) -C $(LIB_DIR)
 
 test:
