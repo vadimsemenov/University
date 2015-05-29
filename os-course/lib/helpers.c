@@ -1,44 +1,49 @@
+#define _GNU_SOURCE
+
 #include "helpers.h"
 
-#include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <errno.h>
+
 #include <string.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <wait.h>
+#include <signal.h>
 
 
 /* Task #6 */
-execargs_t *new_execargs(size_t argc) {
-  execargs_t *result = (execargs_t *) malloc(sizeof(execargs_t) + (2 + argc) * sizeof(char *));
+execargs_t new_execargs(size_t argc) {
+  execargs_t result = (execargs_t) malloc(sizeof(struct execargs) + (2 + argc) * sizeof(char *));
   if (result == NULL) return result;
   result->argc = argc;
   result->argv[argc + 1] = NULL;
   return result;
 }
 
-void set_args(execargs_t *program, char **args) {
+void set_args(execargs_t program, char **args) {
   if (program == NULL) return;
   memmove(program->argv + sizeof(char *), args, program->argc);
 }
 
-void set_file(execargs_t *program, char *file) {
+void set_file(execargs_t program, char *file) {
   if (program == NULL) return;
   program->file = file;
   program->argv[0] = file;
 }
 
-execargs_t *new_bulk_execargs(char *file, size_t argc, char **argv) {
-  execargs_t *result = new_execargs(argc);
+execargs_t new_bulk_execargs(char *file, size_t argc, char **argv) {
+  execargs_t result = new_execargs(argc);
   set_file(result, file);
   set_args(result, argv);
   return result;
 }
 
-int exec(execargs_t *args) {
+int exec(execargs_t args) {
   return execvp(args->file, args->argv);
 }
 
-int runpiped(execargs_t **programs, size_t n) {
+int runpiped(execargs_t *programs, size_t n) {
   int *pipefd = (int *) malloc(2 * n * sizeof(int));
   pipefd[0] = STDOUT_FILENO;
   pipefd[2 * n - 1] = STDIN_FILENO;

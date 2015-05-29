@@ -2,8 +2,12 @@ CAT_DIR = cat/
 REVWORDS_DIR = revwords/
 FILTER_DIR = filter/
 BUFCAT_DIR = bufcat/
+SIMPLESH_DIR = simplesh/
 
-all: cat/cat revwords/revwords filter/filter bufcat/bufcat
+all: cat/cat revwords/revwords filter/filter bufcat/bufcat simplesh/simplesh
+
+$(SIMPLESH_DIR)/simplesh:
+	$(MAKE) -C $(SIMPLESH_DIR)
 
 cat/cat: 
 	$(MAKE) -C $(CAT_DIR)

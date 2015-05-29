@@ -16,15 +16,19 @@ ssize_t read_until(int fd, void *buf, size_t count, const char delimiter);
 int spawn(const char *file, char *const argv[]);
 
 /* Task #5 */
-struct execargs_t {
+typedef struct execargs {
   char *file;
 
   size_t argc;
   char **argv; 
   /** Arguments in fromat: [file, arg0, arg1, ..., argn, NULL] */
-};
+} *execargs_t;
 
-int exec(execargs_t *args);
-int runpiped(execargs_t **programs, size_t n);
+execargs_t new_execargs(size_t argc);
+void set_file(execargs_t program, char *file);
+void set_args(execargs_t program, char **args);
+execargs_t new_bulk_execargs(char *file, size_t argc, char **args);
+int exec(execargs_t args);
+int runpiped(execargs_t *programs, size_t n);
 
 #endif // OS_HELPERS
