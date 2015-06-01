@@ -9,6 +9,8 @@
 #endif
 #include <assert.h>
 
+#include <stdio.h>
+
 struct buf_t *buf_new(size_t capacity) {
   struct buf_t *buf = (struct buf_t *) malloc(SIZEOF_BUF(capacity));
   if (buf != NULL) {
@@ -63,5 +65,33 @@ ssize_t buf_flush(int fd, struct buf_t *buf, size_t required) {
   }
   memmove(DATA(buf), DATA(buf) + offset, buf->size - offset);
   buf->size -= offset;
+  return offset;
+}
+
+ssize_t buf_getline(int fd, struct buf_t *buf, char *dest) {
+  assert(buf);
+  size_t offset = 0;
+  int found_EOL = 0;
+  while (!found_EOL) {
+    size_t i;
+    for (i = 0; i < buf->size; ++i) {
+      dest[offset + i] = *(DATA(buf) + i);
+      if (dest[offset + i] == '\n') {
+        found_EOL = 1;
+        ++i;
+        break;
+      }
+    }
+    offset += i;
+    buf->size -= i;
+    memmove(DATA(buf), DATA(buf) + i, buf->size);
+    ssize_t cnt = 0;
+    if (!found_EOL && (cnt = buf_fill(fd, buf, 1)) < 0) {
+      return -1;
+    }
+    if (cnt == 0) {
+      break;
+    }
+  }
   return offset;
 }
