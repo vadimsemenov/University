@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+#include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -44,57 +45,61 @@ int exec(execargs_t args) {
 }
 
 int runpiped(execargs_t *programs, size_t n) {
-  int *pipefd = (int *) malloc(2 * n * sizeof(int));
-  pipefd[0] = STDOUT_FILENO;
-  pipefd[2 * n - 1] = STDIN_FILENO;
+  int input = -1;
+  int pipefd[2];
   size_t i;
-  for (i = 0; i + 1 < n; ++i) {
-    /* Bind ith end of the pipe with (i+1)th */
-    if (pipe2(pipefd + 1 + 2 * i, O_CLOEXEC) < 0) {
-      /* Fail, close all opened fd */
-      size_t j;
-      for (j = 0; j < 2 * i; ++j) {
-        close(pipefd[j]);
-      }
-      free(pipefd);
-      return -1;
-    }
-  }
-  /* So ith process write end of the pipe is pipefd[2 * (n - 1 - i)]
-     and read end -- pipefd[2 * (n - 1 - i) + 1] */
-  
-  int *childid = (int *) malloc(n * sizeof(int));
   for (i = 0; i < n; ++i) {
-    childid[i] = fork();
-    if (childid[i] == 0) {
-      if (dup2(pipefd[2 * (n - 1 - i) + 1], STDIN_FILENO) < 0) {
+    if (pipe2(pipefd, O_CLOEXEC) < 0) {
+      kill(0, SIGINT);
+    }
+    int childid = fork();
+    if (childid == 0) { /* Child */
+      if (i > 0 && dup2(input, STDIN_FILENO) < 0) {
         _exit(errno);
       }
-      if (dup2(pipefd[2 * (n - 1 - i)], STDOUT_FILENO) < 0) {
+      if (i + 1 < n && dup2(pipefd[1], STDOUT_FILENO) < 0) {
         _exit(errno);
       }
-      /* Why we don't need to close all unused fds?.. */
       return exec(programs[i]);
-    } else if (childid[i] < 0) {
-      size_t j;
-      for (j = 1; j + 1 < 2 * n; ++j) {
-        close(pipefd[j]);
+    } else if (childid < 0) { /* Error */
+      close(pipefd[0]);
+      close(pipefd[1]); 
+      if (input != -1 && input != STDOUT_FILENO && input != STDIN_FILENO) {
+        close(input);
       }
-      for (j = 0; j < i; ++j) {
-        kill(childid[j], SIGKILL); 
-        waitpid(childid[j], NULL, 0); /* Avoid zombies! Oo */
-      }
-      free(childid);
-      free(pipefd);
+      kill(0, SIGINT); // TODO: maybe SIGKILL? 
       return -1;
+    } else { /* Parent */
+      close(pipefd[1]);
+      /* Redirect read end of pipe to input */
+      if (dup2(pipefd[0], input) < 0) {
+        _exit(errno);
+      }
     }
   }
-
+  if (input != -1 && input != STDOUT_FILENO && input != STDIN_FILENO) {
+    close(input);
+  }
+ 
   /* Wait for all children termination */
-  wait(NULL);
-
-  free(childid);
-  free(pipefd);
+  while (1) {
+    int status;
+    int childid;
+    if ((childid = waitpid(0, &status, 0)) < 0) {
+      if (errno == ECHILD) {
+        break; /* No children more */
+      }
+      perror("Some child failed\n");
+      kill(0, SIGKILL); 
+      // TODO: avoid suicide
+    } else {
+      if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
+        fprintf(stderr, "Child (%d) failed\n", childid);
+        kill(0, SIGKILL); 
+        // TODO: avoid suicide
+      }
+    }
+  }
   return 0;
 }
 
