@@ -15,8 +15,10 @@
 
 /* Task #6 */
 execargs_t new_execargs(size_t argc) {
-  execargs_t result = (execargs_t) malloc(sizeof(struct execargs) + (2 + argc) * sizeof(char *));
+//  execargs_t result = (execargs_t) malloc(sizeof(struct execargs) + (2 + argc) * sizeof(char *));
+  execargs_t result = (execargs_t) malloc(sizeof(struct execargs));
   if (result == NULL) return result;
+  result->argv = (char **) malloc((2 + argc) * sizeof(char *));
   result->argc = argc;
   result->argv[argc + 1] = NULL;
   return result;
@@ -24,7 +26,7 @@ execargs_t new_execargs(size_t argc) {
 
 void set_args(execargs_t program, char **args) {
   if (program == NULL) return;
-  memmove(program->argv + sizeof(char *), args, program->argc);
+  memmove(program->argv, args, (program->argc + 2));
 }
 
 void set_file(execargs_t program, char *file) {
@@ -36,8 +38,18 @@ void set_file(execargs_t program, char *file) {
 execargs_t new_bulk_execargs(char *file, size_t argc, char **argv) {
   execargs_t result = new_execargs(argc);
   set_file(result, file);
-  set_args(result, argv);
+  result->argc = argc;
+  result->argv = argv;
   return result;
+}
+
+void print_execargs(FILE *file, execargs_t execarg) {
+  fprintf(file, "%s (%d): ", execarg->file, (int) execarg->argc);
+  size_t i;
+  for (i = 0; i <= execarg->argc; ++i) {
+    fprintf(file, "%s ", execarg->argv[i]);
+  }
+  fprintf(file, "\n");
 }
 
 int exec(execargs_t args) {
@@ -45,58 +57,63 @@ int exec(execargs_t args) {
 }
 
 int runpiped(execargs_t *programs, size_t n) {
-  int input = -1;
+  pid_t children[n];
+  fprintf(stderr, "runpiped(..., %d)\n",(int) n);
+  memset(children, 0, n * sizeof(pid_t));
+  int input = dup(STDIN_FILENO);
   int pipefd[2];
   size_t i;
+for (i = 0; i < n; ++i) print_execargs(stderr, programs[i]);
   for (i = 0; i < n; ++i) {
     if (pipe2(pipefd, O_CLOEXEC) < 0) {
-      kill(0, SIGINT);
+      goto CLOSE_ALL;
     }
-    int childid = fork();
-    if (childid == 0) { /* Child */
+    children[i] = fork();
+    if (children[i] == 0) { /* Child */
+      close(pipefd[0]);
+      fprintf(stderr, "Hello, i'm child (%d)\n", getpid());
       if (i > 0 && dup2(input, STDIN_FILENO) < 0) {
         _exit(errno);
       }
       if (i + 1 < n && dup2(pipefd[1], STDOUT_FILENO) < 0) {
         _exit(errno);
       }
-      return exec(programs[i]);
-    } else if (childid < 0) { /* Error */
+      _exit(exec(programs[i]));
+    } else if (children[i] < 0) { /* Error */
+      perror("Cannot fork :(");
       close(pipefd[0]);
       close(pipefd[1]); 
-      if (input != -1 && input != STDOUT_FILENO && input != STDIN_FILENO) {
-        close(input);
-      }
-      kill(0, SIGINT); // TODO: maybe SIGKILL? 
-      return -1;
+      goto CLOSE_ALL;
     } else { /* Parent */
+      fprintf(stderr, "child (%d)\n", children[i]);
       close(pipefd[1]);
       /* Redirect read end of pipe to input */
       if (dup2(pipefd[0], input) < 0) {
-        _exit(errno);
+        fprintf(stderr, "uuups %d -> %d", pipefd[0], input);
+        goto CLOSE_ALL;
       }
     }
   }
+CLOSE_ALL:
   if (input != -1 && input != STDOUT_FILENO && input != STDIN_FILENO) {
     close(input);
   }
- 
+fprintf(stderr, "chlidren termination, stdin(%d), stdout(%d)\n", STDIN_FILENO, STDOUT_FILENO); 
   /* Wait for all children termination */
-  while (1) {
+  for (i = 0; i < n; ++i) {
+    if (children[i] <= 0) continue;
     int status;
     int childid;
-    if ((childid = waitpid(0, &status, 0)) < 0) {
-      if (errno == ECHILD) {
-        break; /* No children more */
-      }
-      perror("Some child failed\n");
-      kill(0, SIGKILL); 
-      // TODO: avoid suicide
+    if ((childid = waitpid(children[i], &status, 0)) < 0) {
+      fprintf(stderr, "%d\n", childid);
+      fprintf(stderr, "Child (%d) failed\n", children[i]);
+      perror("");
+      kill(children[i], SIGKILL); 
     } else {
-      if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
+      if (!WIFEXITED(status)/* || WEXITSTATUS(status) != 0*/) {
+        fprintf(stderr, "%d - %d\n", WIFEXITED(status), WEXITSTATUS(status));
         fprintf(stderr, "Child (%d) failed\n", childid);
-        kill(0, SIGKILL); 
-        // TODO: avoid suicide
+        kill(children[i], SIGKILL); 
       }
     }
   }
