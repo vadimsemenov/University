@@ -1,7 +1,7 @@
-#include "../lib/helpers.h"
-#include "../lib/bufio.h"
-//#include <helpers.h>
-//#include <bufio.h>
+//#include "../lib/helpers.h"
+//#include "../lib/bufio.h"
+#include <helpers.h>
+#include <bufio.h>
 
 #include <stdio.h>
 #include <unistd.h>
