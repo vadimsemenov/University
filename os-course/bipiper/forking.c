@@ -4,8 +4,8 @@
 #define _GNU_SOURCE
 #endif
 
-#include "../lib/bufio.h"
-//#include <bufio.h>
+//#include "../lib/bufio.h"
+#include <bufio.h>
 
 #include <stdio.h>
 #include <unistd.h>
@@ -48,21 +48,24 @@ int make_server_socket(struct addrinfo *host) {
 }
 
 int do_pipe(int pipefd[2]) {
+  log("Start piping from %d to %d\n", pipefd[0], pipefd[1]);
   static const int BUF_SIZE = 4096;
   struct buf_t *buffer = buf_new(BUF_SIZE);
   int exit_status = EXIT_SUCCESS;
   while (1) {
-    assume(buf_size(buffer) < buf_capacity(buffer), EXIT_FAILURE);
-    ssize_t read = buf_fill(pipefd[0], buffer, buf_size(buffer) + 1);
-    if (read < 0) {
-      fprintf(stderr, "Cannot read from fd %d: %s\n", pipefd[0], strerror(errno));
-      exit_status = EXIT_FAILURE;
-      break;
-    } else if (read == 0) {
-      break;
+    if (buf_size(buffer) < buf_capacity(buffer)) {
+      ssize_t read = buf_fill(pipefd[0], buffer, buf_size(buffer) + 1);
+      if (read < 0) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) continue;
+        fprintf(stderr, "Cannot read from fd %d: %s\n", pipefd[0], strerror(errno));
+        exit_status = EXIT_FAILURE;
+        break;
+      } else if (read == 0) {
+        break;
+      }
     }
-    assume(buf_size(buffer) > 0, EXIT_FAILURE);
-    if (buf_flush(pipefd[1], buffer, 1) < 0) {
+    if (buf_size(buffer) > 0 && buf_flush(pipefd[1], buffer, 1) < 0) {
+      if (errno == EAGAIN || errno == EWOULDBLOCK) continue;
       fprintf(stderr, "Cannot write to fd %d: %s\n", pipefd[1], strerror(errno));
       exit_status = EXIT_FAILURE;
       break;
@@ -74,6 +77,7 @@ int do_pipe(int pipefd[2]) {
       exit_status = EXIT_FAILURE;
     }
   }
+  log("End piping from %d to %d\n", pipefd[0], pipefd[1]);
   return exit_status;
 }
 
@@ -118,8 +122,8 @@ int main(int argc, char **argv) {
       // In parent:
       for (i = 0; i < 2; ++i) {
         close(pipe[i]);
+        pipe[i] = -1;
       }
-      pipe[0] = pipe[1] = -1;
     }
   }
   
