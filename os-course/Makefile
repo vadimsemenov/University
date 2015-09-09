@@ -26,4 +26,5 @@ clean:
 	$(MAKE) clean -C $(REVWORDS_DIR)
 	$(MAKE) clean -C $(FILTER_DIR)
 	$(MAKE) clean -C $(BUFCAT_DIR)
+	$(MAKE) clean -C $(SIMPLESH_DIR)
 

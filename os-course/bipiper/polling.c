@@ -1,8 +1,10 @@
 #define _POSIX_C_SOURCE 2015
+
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 
 #include <bufio.h>
-#include <helpers.h>
 
 #include <stdio.h>
 
@@ -75,8 +77,7 @@ void close_pipe(size_t id) {
 
 int main(int argc, char **argv) {
   if (argc != 3) {
-    static char usage[] = "Usage: polling <port #1> <port #2>\n";
-    write_(STDOUT_FILENO, usage, sizeof(usage));
+    fprintf(stderr, "Usage: %s <port #1> <port #2>\n", argv[0]);
     return EXIT_FAILURE;
   }
 
@@ -147,7 +148,7 @@ int main(int argc, char **argv) {
         }
       }
       if (revent & POLLRDHUP) {
-fprintf(stderr, "POLLRDHUP %d\n", i);
+//fprintf(stderr, "POLLRDHUP %d\n", i);
         assume(shutdown(pfds[(2 + i) ^ 1].fd, SHUT_WR) == 0, EXIT_FAILURE);
         mask[i ^ 1] &= ~POLLOUT;
         pfds[(2 + i) ^ 1].events &= mask[i ^ 1]; // cannot write more to adjanced port
@@ -155,7 +156,7 @@ fprintf(stderr, "POLLRDHUP %d\n", i);
         pfds[2 + i].events &= mask[i]; // cannot read more from this port
       } 
       if (revent & POLLHUP) {
-fprintf(stderr, "POLLHUP %d\n", i);
+//fprintf(stderr, "POLLHUP %d\n", i);
         assume(shutdown(pfds[(2 + i) ^ 1].fd, SHUT_RD) == 0, EXIT_FAILURE);
         mask[i ^ 1] &= ~POLLIN;
         pfds[(2 + i) ^ 1].events &= mask[i ^ 1];
