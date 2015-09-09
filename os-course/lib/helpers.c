@@ -1,4 +1,8 @@
+//#define DEBUG
+
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 
 #include "helpers.h"
 
@@ -6,6 +10,13 @@
 #include <stdlib.h>
 
 #include <stdio.h>
+
+#ifdef DEBUG
+#define log(...)  fprintf(stderr, __VA_ARGS__);
+#else
+#define log(...) {}
+#endif
+
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -58,20 +69,36 @@ int exec(execargs_t args) {
 
 int runpiped(execargs_t *programs, size_t n) {
   pid_t children[n];
-  fprintf(stderr, "runpiped(..., %d)\n",(int) n);
+  log("runpiped(..., %d)\n",(int) n);
   memset(children, 0, n * sizeof(pid_t));
+  
+  sigset_t blocked_signals, init_signals;
+  sigemptyset(&blocked_signals);
+  if (sigaddset(&blocked_signals, SIGINT) != 0) {
+    perror("sigaddset() failed");
+    return -1;
+  }
+  if (sigprocmask(SIG_BLOCK, &blocked_signals, &init_signals) < 0) {
+    perror("sigprocmask(SIG_BLOCK, ..) failed");
+    return -1;
+  }
+
   int input = dup(STDIN_FILENO);
   int pipefd[2];
   size_t i;
-for (i = 0; i < n; ++i) print_execargs(stderr, programs[i]);
   for (i = 0; i < n; ++i) {
     if (pipe2(pipefd, O_CLOEXEC) < 0) {
       goto CLOSE_ALL;
     }
     children[i] = fork();
     if (children[i] == 0) { /* Child */
+      sigset_t foo;
+      if (sigprocmask(SIG_UNBLOCK, &blocked_signals, &foo) < 0) {
+        perror("sigprocmask(SIG_UNBLOCK, ..) failed");
+        _exit(errno);
+      }
+      log("[child %d]\n", getpid());
       close(pipefd[0]);
-      fprintf(stderr, "Hello, i'm child (%d)\n", getpid());
       if (i > 0 && dup2(input, STDIN_FILENO) < 0) {
         _exit(errno);
       }
@@ -85,11 +112,9 @@ for (i = 0; i < n; ++i) print_execargs(stderr, programs[i]);
       close(pipefd[1]); 
       goto CLOSE_ALL;
     } else { /* Parent */
-      fprintf(stderr, "child (%d)\n", children[i]);
       close(pipefd[1]);
       /* Redirect read end of pipe to input */
       if (dup2(pipefd[0], input) < 0) {
-        fprintf(stderr, "uuups %d -> %d", pipefd[0], input);
         goto CLOSE_ALL;
       }
     }
@@ -98,24 +123,21 @@ CLOSE_ALL:
   if (input != -1 && input != STDOUT_FILENO && input != STDIN_FILENO) {
     close(input);
   }
-fprintf(stderr, "chlidren termination, stdin(%d), stdout(%d)\n", STDIN_FILENO, STDOUT_FILENO); 
+log("Chlidren termination, stdin(%d), stdout(%d)\n", STDIN_FILENO, STDOUT_FILENO); 
   /* Wait for all children termination */
   for (i = 0; i < n; ++i) {
     if (children[i] <= 0) continue;
     int status;
     int childid;
-    if ((childid = waitpid(children[i], &status, 0)) < 0) {
-      fprintf(stderr, "%d\n", childid);
-      fprintf(stderr, "Child (%d) failed\n", children[i]);
-      perror("");
+    if ((childid = waitpid(children[i], &status, 0)) < 0 || !WIFEXITED(status)) {
+      log("%d\n", childid);
+      log("Child (%d) failed: %s\n", children[i], strerror(errno));
       kill(children[i], SIGKILL); 
-    } else {
-      if (!WIFEXITED(status)/* || WEXITSTATUS(status) != 0*/) {
-        fprintf(stderr, "%d - %d\n", WIFEXITED(status), WEXITSTATUS(status));
-        fprintf(stderr, "Child (%d) failed\n", childid);
-        kill(children[i], SIGKILL); 
-      }
     }
+  }
+  if (sigprocmask(SIG_SETMASK, &init_signals, NULL) < 0) {
+    perror("sigprocmask(SIG_SETMASK, ..) failed");
+    return -1;
   }
   return 0;
 }

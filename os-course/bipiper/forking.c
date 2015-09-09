@@ -4,8 +4,8 @@
 #define _GNU_SOURCE
 #endif
 
-#include "../lib/bufio.h"
-//#include <bufio.h>
+//#include "../lib/bufio.h"
+#include <bufio.h>
 
 #include <stdio.h>
 #include <unistd.h>
@@ -48,6 +48,7 @@ int make_server_socket(struct addrinfo *host) {
 }
 
 int do_pipe(int pipefd[2]) {
+  log("Start piping from %d to %d\n", pipefd[0], pipefd[1]);
   static const int BUF_SIZE = 4096;
   struct buf_t *buffer = buf_new(BUF_SIZE);
   int exit_status = EXIT_SUCCESS;
@@ -74,6 +75,7 @@ int do_pipe(int pipefd[2]) {
       exit_status = EXIT_FAILURE;
     }
   }
+  log("End piping from %d to %d\n", pipefd[0], pipefd[1]);
   return exit_status;
 }
 

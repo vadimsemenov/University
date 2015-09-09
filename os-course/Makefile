@@ -3,10 +3,17 @@ REVWORDS_DIR = revwords/
 FILTER_DIR = filter/
 BUFCAT_DIR = bufcat/
 SIMPLESH_DIR = simplesh/
+BIPIPER_DIR = bipiper/
 
-all: cat/cat revwords/revwords filter/filter bufcat/bufcat simplesh/simplesh
+all: cat/cat revwords/revwords filter/filter bufcat/bufcat simplesh/simplesh bipiper/forking bipiper/polling
 
-$(SIMPLESH_DIR)/simplesh:
+$(BIPIPER_DIR)forking:
+	$(MAKE) -C $(BIPIPER_DIR)
+
+$(BIPIPER_DIR)polling:
+	$(MAKE) -C $(BIPIPER_DIR)
+
+$(SIMPLESH_DIR)simplesh:
 	$(MAKE) -C $(SIMPLESH_DIR)
 
 cat/cat: 
@@ -27,4 +34,5 @@ clean:
 	$(MAKE) clean -C $(FILTER_DIR)
 	$(MAKE) clean -C $(BUFCAT_DIR)
 	$(MAKE) clean -C $(SIMPLESH_DIR)
+	$(MAKE) clean -C $(BIPIPER_DIR)
 
