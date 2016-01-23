@@ -1,7 +1,9 @@
 #include <bits/stdc++.h>
 
-const int MAGIC = 40;
+const int MAGIC = 27;
+const int BOTVA = 999 / MAGIC - 4;
 std::vector<double> result;
+double best;
 
 double query() {
   for (double &x : result) {
@@ -24,16 +26,16 @@ x = (3 +/- sqrt(5)) / 2
 2      vs 9 - 3 * sqrt(5)
        <
 */
-double solve(int dim) {
+void solve(int dim) {
   const double mul = (3.0 - sqrt(5.0)) / 2.0;
-  const int BOTVA = 20;
-  double best = query();
+  double best_ = 0;
   for (int i = 0; i < MAGIC; ++i) {
     double ll = (double) i / MAGIC;
     result[dim] = ll;
     double l_ = query();
     if (l_ < best) {
       best = l_;
+      best_ = ll;
     }
 
     double rr = (double) (i + 1) / MAGIC;
@@ -41,15 +43,15 @@ double solve(int dim) {
     double r_ = query();
     if (r_ < best) {
       best = r_;
+      best_ = rr;
     }
 
     double mm = ll + mul * (rr - ll);
     result[dim] = mm;
     double m_ = query();
-    if (m_ > l_ && m_ > r_) { // not convex
-      continue;
-    } else if (m_ < best) {
+    if (m_ < best) {
       best = m_;
+      best_ = mm;
     }
     bool lhs = true;
 
@@ -71,9 +73,6 @@ double solve(int dim) {
           l_ = _;
         }
         lhs = !lhs;
-        if (m_ < best) {
-          best = m_;
-        }
       } else {
         if (lhs) {
           ll = mm;
@@ -82,30 +81,31 @@ double solve(int dim) {
           rr = mm;
           r_ = m_;
         }
-        if (_ < best) {
-          best = _;
-        }
+        mm = mmm;
+        m_ = _;
+      }
+      if (m_ < best) {
+        best = m_;
+        best_ = mm;
       }
     }
     result[dim] = (ll + rr) / 2;
     double foo = query();
     if (foo < best) {
       best = foo;
+      best_ = result[dim];
     }
   }
-  return best;
+  result[dim] = best_;
 }
 
 int main() {
   std::cout << std::fixed << std::setprecision(9);
   int dims; std::cin >> dims;
   result.resize(dims);
-  double best = query();
+  best = query();
   for (int d = 0; d < dims; ++d) {
-    double foo = solve(d);
-    if (best > foo) {
-      best = foo;
-    }
+    solve(d);
   }
   std::cout << "minimum " << best << std::endl;
   return 0;
