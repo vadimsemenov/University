@@ -1,26 +1,19 @@
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-import java.util.StringTokenizer;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
+import java.io.*;
+import java.nio.file.*;
+import java.util.*;
+import java.util.concurrent.*;
 
 /**
+ * WARNING:
+ * This implementation is dramatically slow (or unlucky :)
+ * on large inputs (don't know, why),
+ * simple bruteforce solution will beat it.
+ * 
  * @author Vadim Semenov (semenov@rain.ifmo.ru)
  */
 public class Artificial {
     public static final int POPULATION_SIZE = 1000;
-    public static final int POPULATION_MUTATION_PERIOD = 500;
+    public static final int POPULATION_MUTATION_PERIOD = 100000;
     public static final int ESTIMATED_INCREASE_BY_PERIOD = 20;
     public static final int BEST_THRESHOLD = POPULATION_SIZE / 20;
 
@@ -37,9 +30,16 @@ public class Artificial {
                 int maxSteps = Integer.parseInt(tokenizer.nextToken());
                 Worker worker = new Worker(testCase, automatonSize, maxSteps, Field.createField(fieldSize, reader));
                 futures.add(pool.submit(worker));
+//								worker.run();
             }
             pool.shutdown();
-            pool.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+            for (Future<?> future : futures) {
+                try {
+                    future.get();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+            }
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -83,7 +83,7 @@ public class Artificial {
                         } catch (FileNotFoundException e) {
                             throw new RuntimeException(e);
                         }
-                        System.err.println("done #" + id + " @ " + (iteration + 1));
+                        System.err.println("done #" + id + " @ " + (iteration + 1) + "\n" + population[i].dump());
                         return;
                     }
                 }
@@ -114,13 +114,17 @@ public class Artificial {
                                     nextPopulation[i] = crossoverPart;
                                     crossoverPart = null;
                                 } else {
-                                    nextPopulation[i] = population[random.nextInt(POPULATION_SIZE)];
-                                    crossoverPart = population[random.nextInt(POPULATION_SIZE)];
+                                    nextPopulation[i] = population[random.nextInt(POPULATION_SIZE)].clone();
+                                    crossoverPart = population[random.nextInt(POPULATION_SIZE)].clone();
                                     Automaton.crossover(nextPopulation[i], crossoverPart, random);
                                 }
                             }
+                        } else {
+                            nextPopulation[i] = population[i];
                         }
                     }
+                    System.arraycopy(nextPopulation, 0, population, 0, POPULATION_SIZE);
+                    Arrays.fill(nextPopulation, null);
                 }
             }
         }
@@ -180,7 +184,7 @@ public class Artificial {
             int state = automaton.startState;
             int direction = 0; // EAST
             int counter = 0;
-            int last = maxSteps + 1;
+            int last = maxSteps;
             for (int i = 0; i < maxSteps; ++i) {
                 if (field[x][y] == 1) {
                     last = i;
@@ -247,7 +251,7 @@ public class Artificial {
         }
 
         public static Automaton createRandomAutomaton(int states, Random random) {
-            Automaton automaton = new Automaton(states, random.nextInt(states));
+            Automaton automaton = new Automaton(states);
             for (int i = 0; i < 2; ++i) {
                 for (int j = 0; j < states; ++j) {
                     automaton.edges[i][j] = random.nextInt(states);
@@ -269,9 +273,8 @@ public class Artificial {
                     startState = random.nextInt(states);
                     break;
                 case 1:
-                    hashedEdge = random.nextInt(2 * states);
-                    input = hashedEdge / states;
-                    state = hashedEdge % states;
+                    input = 0; // no reason to turn if we see an apple
+                    state = random.nextInt(states);
                     int nextOutput = 0;
                     if (output[input][state] == nextOutput) ++nextOutput;
                     if (random.nextBoolean()) ++nextOutput;
@@ -289,9 +292,9 @@ public class Artificial {
                     output[0][state] ^= output[1][state];
                     output[1][state] ^= output[0][state];
                     output[0][state] ^= output[1][state];
-                    edges[0][state] ^= edges[1][state];
-                    edges[1][state] ^= edges[0][state];
-                    edges[0][state] ^= edges[1][state];
+                    if (random.nextBoolean()) {
+                        edges[0][state] = edges[1][state];
+                    }
                     break;
             }
         }
@@ -340,6 +343,26 @@ public class Artificial {
                         OUTPUT_SYMBOLS[output[0][i]] + " " + OUTPUT_SYMBOLS[output[1][i]]);
             }
             swap(0, startState);
+        }
+
+        public String dump() {
+            StringBuilder dump = new StringBuilder();
+            dump.append(states);
+            dump.append(' ');
+            dump.append(startState);
+            dump.append('\n');
+            for (int i = 0; i < states; ++i) {
+                for (int j = 0; j < 2; ++j) {
+                    dump.append(edges[j][i] + 1);
+                    dump.append(' ');
+                }
+                for (int j = 0; j < 2; ++j) {
+                    dump.append(OUTPUT_SYMBOLS[output[j][i]]);
+                    dump.append(' ');
+                }
+                dump.append('\n');
+            }
+            return dump.toString();
         }
 
         private void swap(int first, int second) {
