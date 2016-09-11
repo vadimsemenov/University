@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.Double?>
+<GridPane alignment="center" hgap="10" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="500.0" prefWidth="500.0" vgap="10" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.ifmo.ctddev.numcal.semenov.ConvergenceController">
+    <fx:define>
+        <Double fx:id="height" fx:value="500" />
+        <Double fx:id="width" fx:value="500" />
+    </fx:define>
+    <children>
+        <Canvas fx:id="fractalCanvas" height="$height" width="$width" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+        <Canvas fx:id="pathCanvas" height="$height" width="$width" onMouseMoved="#drawPath" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+        <!--<ProgressBar fx:id="progressBar" prefHeight="20.0" prefWidth="427.0" progress="0.0" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />-->
+    </children>
+</GridPane>
