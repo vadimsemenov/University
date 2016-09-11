@@ -1,3 +1,6 @@
 [submodule "parallel-programming-course/distributed-key-value-storage"]
 	path = parallel-programming-course/distributed-key-value-storage
 	url = https://github.com/vadimsemenov/distributed-key-value-storage.git
+[submodule "android-course/photo-of-the-day"]
+	path = android-course/photo-of-the-day
+	url = https://github.com/vadimsemenov/photo-of-the-day
