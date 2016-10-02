@@ -1,6 +1,15 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-module BinaryTree (find, insert, delete, merge, toList, fromList) where
+module BinarySearchTree
+       ( find
+       , insert
+       , delete
+       , merge
+       , next
+       , toList
+       , fromList
+       , Tree (..)
+       ) where
 
 import           TreePrinters (Tree (..))
 
@@ -32,20 +41,31 @@ merge tree Leaf  = tree
 merge left right = Node mx newLeft right
   where
     (mx, newLeft) = findMax left
+    findMax :: Ord a => Tree a -> (a, Tree a)
     findMax Leaf              = error "could not happen"
     findMax (Node val l Leaf) = (val, l)
     findMax (Node val l r)    = let (m, nr) = findMax r in (m, Node val l nr)
 
 toList :: Tree a -> [a]
-toList node = toList' node []
-  where
-    toList' Leaf acc                  = acc
-    toList' (Node val left right) acc = val : toList' left (toList' right acc)
+toList =  foldr (:) []
 
 fromList :: Ord a => [a] -> Tree a
 fromList []       = Leaf
 fromList (x : xs) = Node x (fromList $ filter (< x) xs) (fromList $ filter (> x) xs)
 
+next :: Ord a => Tree a -> a -> Maybe a
+next Leaf _ = Nothing
+next (Node val left right) key
+  | val == key = findMin right
+  | val < key  = next right key
+  | otherwise  = let m = next left key in case m of
+                                            Nothing -> Just val
+                                            _       -> m
+  where
+    findMin :: Ord a => Tree a -> Maybe a
+    findMin Leaf            = Nothing
+    findMin (Node v Leaf _) = Just v
+    findMin (Node _ l _)    = findMin l
 
 instance (Ord a) => Monoid (Tree a) where
   mempty = Leaf
