@@ -2,7 +2,7 @@ name:                phantom-coins
 version:             0.1.0.0
 synopsis:            Initial project template from stack
 description:         Please see README.md
-homepage:            https://github.com/githubuser/phantom-coins#readme
+homepage:            https://github.com/vadimsemenov/university#readme
 license:             BSD3
 license-file:        LICENSE
 author:              Author name here
@@ -38,4 +38,4 @@ test-suite phantom-coins-test
 
 source-repository head
   type:     git
-  location: https://github.com/githubuser/phantom-coins
+  location: https://github.com/vadimsemenov/university/functional-programming-course/hw-3/phantom-coins
