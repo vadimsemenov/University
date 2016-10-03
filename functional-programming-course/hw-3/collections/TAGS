@@ -1,0 +1,107 @@
+
+./app/Main.hs,52
+module Main Main0,1
+main main2,3
+main main3,4
+
+./Setup.hs,15
+main main1,2
+
+./src/BinarySearchTree.hs,352
+module BinarySearchTreeBinarySearchTree2,3
+find find15,16
+find find16,17
+insert insert22,23
+insert insert23,24
+delete delete29,30
+delete delete30,31
+merge merge36,37
+merge merge37,38
+toList toList48,49
+toList toList49,50
+fromList fromList51,52
+fromList fromList52,53
+next next55,56
+next next56,57
+instance instance69,70
+
+./src/Lib.hs,65
+module LibLib0,1
+someFunc someFunc4,5
+someFunc someFunc5,6
+
+./src/Map.hs,440
+class (Ord k) => Map Map11,12
+class (Ord k) => Map Map11,12
+  empty empty12,13
+  toList toList13,14
+  find find14,15
+  insert insert15,16
+  delete delete16,17
+  next next17,18
+  fromList fromList18,19
+data MapEntry MapEntry20,21
+data MapEntry k v = MapEntry MapEntry20,21
+data MapEntry k v = MapEntry { getKey getKey20,21
+data MapEntry k v = MapEntry { getKey :: k, getValue getValue20,21
+instance instance23,24
+
+./src/Set.hs,244
+class (Ord a) => Set Set11,12
+class (Ord a) => Set Set11,12
+  empty empty12,13
+  toList toList13,14
+  find find14,15
+  insert insert15,16
+  delete delete16,17
+  next next17,18
+  fromList fromList18,19
+instance instance20,21
+
+./src/SetOnMap.hs,286
+module SetOnMap SetOnMap5,6
+class (M.Map t k k) => Set Set11,12
+class (M.Map t k k) => Set Set11,12
+  empty empty12,13
+  toList toList13,14
+  find find14,15
+  insert insert15,16
+  delete delete16,17
+  next next17,18
+  fromList fromList18,19
+instance instance20,21
+
+./src/TreePrinters.hs,922
+module TreePrintersTreePrinters4,5
+data Tree Tree13,14
+data Tree a = Leaf Leaf13,14
+data Tree a = Leaf | Node Node13,14
+directoryPrint directoryPrint46,47
+directoryPrint directoryPrint47,48
+verticalPrint verticalPrint82,83
+verticalPrint verticalPrint83,84
+type TreeRows TreeRows85,86
+rowPrinter rowPrinter87,88
+rowPrinter rowPrinter88,89
+connectOneChild connectOneChild108,109
+connectOneChild connectOneChild109,110
+attachRows attachRows111,112
+attachRows attachRows112,113
+middle middle128,129
+middle middle129,130
+labelMidPosition labelMidPosition131,132
+labelMidPosition labelMidPosition132,133
+nspaces nspaces137,138
+nspaces nspaces138,139
+upEdge upEdge140,141
+upEdge upEdge141,142
+moveRight moveRight143,144
+moveRight moveRight144,145
+fillRight fillRight146,147
+fillRight fillRight147,148
+mergeChildren mergeChildren149,150
+mergeChildren mergeChildren150,151
+
+./test/Spec.hs,30
+main main0,1
+main main1,2
