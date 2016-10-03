@@ -57,7 +57,7 @@ instance Entity Player where
   defence (Player _ _ d) = d
   defend (Player h a d) att
     | att >= h + d = Left []
-    | otherwise    = Right $ Player h - max 0 (att - d) a d
+    | otherwise    = Right $ Player (h - max 0 (att - d)) a d
   isPlayer _ = True
   improve eq pl = case eq of
     Trant h  -> Player (h + hp pl) (attack pl) (defence pl)
@@ -70,6 +70,6 @@ instance Entity Monster where
   defence (Monster _ _ d _) = d
   defend (Monster h a d items) att
     | att >= d + h = Left items
-    | otherwise    = Right $ Monster h - max 0 (att - d) a d items
+    | otherwise    = Right $ Monster (h - max 0 (att - d)) a d items
   isPlayer _ = False
   improve _ _ = error "cannot improve monster"
