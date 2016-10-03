@@ -1,7 +1,11 @@
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 
-module Map where
+module Map
+       ( Map (..)
+       , MapEntry (..)
+       , S.Tree (..)
+       ) where
 
 import qualified Set as S
 
@@ -15,6 +19,7 @@ class (Ord k) => Map t k v where
   fromList :: [MapEntry k v] -> t (MapEntry k v)
 
 data MapEntry k v = MapEntry { getKey :: k, getValue :: v }
+  deriving Show
 
 instance Eq k => Eq (MapEntry k v) where
   (==) x y = getKey x == getKey y

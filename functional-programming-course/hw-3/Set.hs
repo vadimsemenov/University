@@ -1,7 +1,10 @@
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 
-module Set (Set (..), Tree (..)) where
+module Set
+       ( Set (..)
+       , Tree (..)
+       ) where
 
 import           BinarySearchTree (Tree (..))
 import qualified BinarySearchTree as T
