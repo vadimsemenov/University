@@ -1,8 +1,6 @@
-package ru.ifmo.ctddev.semenov.test;
+package ru.ifmo.ctddev.semenov;
 
 import org.junit.Test;
-import ru.ifmo.ctddev.semenov.Cache;
-import ru.ifmo.ctddev.semenov.LruCache;
 
 import static junit.framework.TestCase.*;
 
