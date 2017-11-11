@@ -1,112 +1,74 @@
 package ru.akirakozov.sd.refactoring.servlet;
 
-import javax.servlet.http.HttpServlet;
+import ru.akirakozov.sd.refactoring.dao.ProductDao;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * @author akirakozov
  */
-public class QueryServlet extends HttpServlet {
+public class QueryServlet extends ProductHttpServlet {
+    public QueryServlet(ProductDao dao) {
+        super(dao);
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String command = request.getParameter("command");
-
-        if ("max".equals(command)) {
-            try {
-                try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
-                    Statement stmt = c.createStatement();
-                    ResultSet rs = stmt.executeQuery("SELECT * FROM PRODUCT ORDER BY PRICE DESC LIMIT 1");
-                    response.getWriter().println("<html><body>");
-                    response.getWriter().println("<h1>Product with max price: </h1>");
-
-                    while (rs.next()) {
-                        String  name = rs.getString("name");
-                        int price  = rs.getInt("price");
-                        response.getWriter().println(name + "\t" + price + "</br>");
-                    }
-                    response.getWriter().println("</body></html>");
-
-                    rs.close();
-                    stmt.close();
-                }
-
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        } else if ("min".equals(command)) {
-            try {
-                try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
-                    Statement stmt = c.createStatement();
-                    ResultSet rs = stmt.executeQuery("SELECT * FROM PRODUCT ORDER BY PRICE LIMIT 1");
-                    response.getWriter().println("<html><body>");
-                    response.getWriter().println("<h1>Product with min price: </h1>");
-
-                    while (rs.next()) {
-                        String  name = rs.getString("name");
-                        int price  = rs.getInt("price");
-                        response.getWriter().println(name + "\t" + price + "</br>");
-                    }
-                    response.getWriter().println("</body></html>");
-
-                    rs.close();
-                    stmt.close();
-                }
-
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        } else if ("sum".equals(command)) {
-            try {
-                try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
-                    Statement stmt = c.createStatement();
-                    ResultSet rs = stmt.executeQuery("SELECT SUM(price) FROM PRODUCT");
-                    response.getWriter().println("<html><body>");
-                    response.getWriter().println("Summary price: ");
-
-                    if (rs.next()) {
-                        response.getWriter().println(rs.getInt(1));
-                    }
-                    response.getWriter().println("</body></html>");
-
-                    rs.close();
-                    stmt.close();
-                }
-
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        } else if ("count".equals(command)) {
-            try {
-                try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
-                    Statement stmt = c.createStatement();
-                    ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM PRODUCT");
-                    response.getWriter().println("<html><body>");
-                    response.getWriter().println("Number of products: ");
-
-                    if (rs.next()) {
-                        response.getWriter().println(rs.getInt(1));
-                    }
-                    response.getWriter().println("</body></html>");
-
-                    rs.close();
-                    stmt.close();
-                }
-
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            response.getWriter().println("Unknown command: " + command);
+        switch (command) {
+            case "max":
+                getMax(response);
+                break;
+            case "min":
+                getMin(response);
+                break;
+            case "sum":
+                getSum(response);
+                break;
+            case "count":
+                getCount(response);
+                break;
+            default:
+                response.getWriter().println("Unknown command: " + command);
+                break;
         }
 
         response.setContentType("text/html");
         response.setStatus(HttpServletResponse.SC_OK);
     }
 
+    private void getMax(HttpServletResponse response) {
+        execAndWrite(response, "Product with max price: ", dao::getMax, "No products for 'max' request");
+    }
+
+    private void getMin(HttpServletResponse response) {
+        execAndWrite(response, "Product with min price: ", dao::getMin, "No products for 'min' request");
+    }
+
+    private void getSum(HttpServletResponse response) {
+        execAndWrite(response, "Summary price: ", dao::getSum, "No products for 'sum' request");
+    }
+
+    private void getCount(HttpServletResponse response) {
+        execAndWrite(response, "Number of products: ", dao::getCount, "No products for 'count' request");
+    }
+
+    private <T> void execAndWrite(HttpServletResponse response, String h1, Supplier<Optional<T>> supplier, String onEmpty) {
+        try {
+            response.getWriter().println("<html><body>");
+            response.getWriter().println("<h1>" + h1 + "</h1>");
+
+            Optional<T> max = supplier.get();
+            response.getWriter().println(max.map(Object::toString).orElse(onEmpty));
+            response.getWriter().println("</br>");
+
+            response.getWriter().println("</body></html>");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
