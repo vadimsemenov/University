@@ -2,10 +2,10 @@ package ru.akirakozov.sd.refactoring.servlet;
 
 import ru.akirakozov.sd.refactoring.dao.Product;
 import ru.akirakozov.sd.refactoring.dao.ProductDao;
+import ru.akirakozov.sd.refactoring.http.HttpBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,18 +18,17 @@ public class GetProductsServlet extends ProductHttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) {
         Optional<List<Product>> products = dao.getProducts();
-        response.getWriter().println("<html><body>");
+        HttpBuilder builder = HttpBuilder.createOpen();
+
         if (!products.isPresent()) {
-            response.getWriter().println("No products for 'getProducts' request");
+            builder.appendLine("No products for 'getProducts' request");
         } else {
             for (Product product : products.get()) {
-                response.getWriter().print(product);
-                response.getWriter().println("</br>");
+                builder.appendLine(product.toString());
             }
         }
-        response.setContentType("text/html");
-        response.setStatus(HttpServletResponse.SC_OK);
+        builder.writeTo(response);
     }
 }

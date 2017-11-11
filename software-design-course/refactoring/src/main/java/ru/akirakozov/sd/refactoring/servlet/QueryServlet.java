@@ -1,10 +1,10 @@
 package ru.akirakozov.sd.refactoring.servlet;
 
 import ru.akirakozov.sd.refactoring.dao.ProductDao;
+import ru.akirakozov.sd.refactoring.http.HttpBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -17,7 +17,7 @@ public class QueryServlet extends ProductHttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) {
         String command = request.getParameter("command");
         switch (command) {
             case "max":
@@ -33,12 +33,11 @@ public class QueryServlet extends ProductHttpServlet {
                 getCount(response);
                 break;
             default:
-                response.getWriter().println("Unknown command: " + command);
+                HttpBuilder.createOpen()
+                        .appendLine("Unknown command: " + command)
+                        .writeTo(response);
                 break;
         }
-
-        response.setContentType("text/html");
-        response.setStatus(HttpServletResponse.SC_OK);
     }
 
     private void getMax(HttpServletResponse response) {
@@ -57,18 +56,11 @@ public class QueryServlet extends ProductHttpServlet {
         execAndWrite(response, "Number of products: ", dao::getCount, "No products for 'count' request");
     }
 
-    private <T> void execAndWrite(HttpServletResponse response, String h1, Supplier<Optional<T>> supplier, String onEmpty) {
-        try {
-            response.getWriter().println("<html><body>");
-            response.getWriter().println("<h1>" + h1 + "</h1>");
-
-            Optional<T> max = supplier.get();
-            response.getWriter().println(max.map(Object::toString).orElse(onEmpty));
-            response.getWriter().println("</br>");
-
-            response.getWriter().println("</body></html>");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    private <T> void execAndWrite(HttpServletResponse response, String header, Supplier<Optional<T>> supplier, String onEmpty) {
+        Optional<T> max = supplier.get();
+        HttpBuilder.createOpen()
+                .appendHeader(header)
+                .appendLine(max.map(Object::toString).orElse(onEmpty))
+                .writeTo(response);
     }
 }
