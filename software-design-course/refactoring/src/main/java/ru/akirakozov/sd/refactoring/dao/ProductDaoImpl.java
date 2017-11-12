@@ -80,7 +80,7 @@ public class ProductDaoImpl implements ProductDao {
              Statement statement = connection.createStatement()
         ) {
             return executor.execute(statement);
-        } catch (Exception e) {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
@@ -102,7 +102,7 @@ public class ProductDaoImpl implements ProductDao {
     }
 
     private static Product parseProduct(ResultSet row) throws SQLException {
-        return Product.create(row.getString("name"), row.getInt("price"));
+        return Product.create(row.getString("name"), row.getLong("price"));
     }
 
     @FunctionalInterface
