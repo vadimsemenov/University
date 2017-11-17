@@ -1,0 +1,49 @@
+package ru.ifmo.ctddev.semenov.todo.dao;
+
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.support.JdbcDaoSupport;
+import ru.ifmo.ctddev.semenov.todo.model.Task;
+
+import javax.sql.DataSource;
+import java.util.List;
+
+/**
+ * @author  Vadim Semenov (semenov@rain.ifmo.ru)
+ */
+public class TaskJdbcDao extends JdbcDaoSupport implements TaskDao {
+
+    public TaskJdbcDao(DataSource dataSource) {
+        super();
+        setDataSource(dataSource);
+    }
+
+    @Override
+    public int addTask(Task task) {
+        String sql = "INSERT INTO TASKS (NAME, TASKLIST, DONE) VALUES (?, ?, ?)";
+        return getJdbcTemplate().update(sql, task.getName(), task.getTaskList(), task.isDone());
+    }
+
+    @Override
+    public List<Task> getTasks() {
+        String sql = "SELECT * FROM TASKS";
+        return getTasksByRequest(sql);
+    }
+
+//    @Override
+//    public Optional<Product> getProductWithMaxPrice() {
+//        String sql = "SELECT * FROM TASKS ORDER BY PRICE DESC LIMIT 1";
+//        return getTasksByRequest(sql).stream().findFirst();
+//    }
+//
+//    @Override
+//    public Optional<Product> getProductWithMinPrice() {
+//        String sql = "SELECT * FROM TASKS ORDER BY PRICE LIMIT 1";
+//        return getTasksByRequest(sql).stream().findFirst();
+//
+//    }
+
+    private List<Task> getTasksByRequest(String sql) {
+        return getJdbcTemplate().query(sql, new BeanPropertyRowMapper(Task.class));
+    }
+
+}

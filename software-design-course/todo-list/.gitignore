@@ -1,6 +1,8 @@
 .idea/
 out/
 
+jsp/
+
 .gradle
 /build/
 
