@@ -1,8 +1,6 @@
-package ru.ifmo.ctddev.semenov.test;
+package ru.ifmo.ctddev.semenov;
 
 import org.junit.Test;
-import ru.ifmo.ctddev.semenov.Cache;
-import ru.ifmo.ctddev.semenov.LruCache;
 
 import static junit.framework.TestCase.*;
 
@@ -10,6 +8,10 @@ import static junit.framework.TestCase.*;
  * @author Vadim Semenov (semenov@rain.ifmo.ru)
  */
 public class LruCacheTest {
+    protected <K, V> Cache<K, V> createLruCache(int maxSize) {
+        return new LruCache<>(maxSize);
+    }
+
     @Test
     public void testGeneral() {
         int qty = 1000;
@@ -19,8 +21,8 @@ public class LruCacheTest {
             keys[i] = "" + i;
             values[i] = new Integer(i);
         }
-        Cache<String, Integer> cache = new LruCache<>();
         int maxSize = 100;
+        Cache<String, Integer> cache = createLruCache(maxSize);
         for (int i = 0; i < qty; ++i) {
             assertTrue("new key already exists in cache", cache.put(keys[i], values[i]));
             for (int j = 0; j < qty; ++j) {
@@ -45,7 +47,7 @@ public class LruCacheTest {
                 {"key3", "val3"},
                 {"key4", "val4"}
         };
-        Cache<String, String> cache = new LruCache<>(3);
+        Cache<String, String> cache = createLruCache(3);
         assertTrue("new key already exists in cache", put(cache, pairs[0]));
         assertTrue("new key already exists in cache", put(cache, pairs[1]));
         assertTrue("new key already exists in cache", put(cache, pairs[2]));
