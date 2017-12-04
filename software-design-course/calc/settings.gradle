@@ -1,0 +1,3 @@
+rootProject.name = 'calc'
+rootProject.buildFileName = 'build.gradle.kts'
+
