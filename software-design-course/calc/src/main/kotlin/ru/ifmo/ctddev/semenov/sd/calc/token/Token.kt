@@ -21,7 +21,7 @@ interface WhitespaceToken: Token
 object SpaceToken: WhitespaceToken
 object EofToken: WhitespaceToken
 
-data class NumberToken(private val number: Int): Token {
+data class NumberToken(val number: Int): Token {
     override fun toString(): String = "NUMBER($number)"
 }
 

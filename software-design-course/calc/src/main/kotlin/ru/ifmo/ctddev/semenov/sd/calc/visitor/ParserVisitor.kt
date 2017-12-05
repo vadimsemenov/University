@@ -2,6 +2,7 @@ package ru.ifmo.ctddev.semenov.sd.calc.visitor
 
 import ru.ifmo.ctddev.semenov.sd.calc.parser.Parser
 import ru.ifmo.ctddev.semenov.sd.calc.token.*
+import ru.ifmo.ctddev.semenov.sd.calc.pop
 
 class ParserVisitor(private val normalList: List<Token>): TokenVisitor, Parser {
     private val stack = arrayListOf<Token>()
@@ -17,14 +18,6 @@ class ParserVisitor(private val normalList: List<Token>): TokenVisitor, Parser {
 
     private fun OperationToken.priority(): Int = op2priority[this] ?:
             throw IllegalStateException("Unknown operation: '$this'")
-
-    private fun <T> ArrayList<T>.pop(): T {
-        if (isEmpty()) throw IllegalStateException("Stack is empty") else {
-            val result = this[lastIndex]
-            this.removeAt(lastIndex)
-            return result
-        }
-    }
 
     override fun visit(number: NumberToken) {
         stack.add(number)
