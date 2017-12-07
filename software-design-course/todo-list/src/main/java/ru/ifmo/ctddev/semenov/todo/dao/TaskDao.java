@@ -11,6 +11,7 @@ public interface TaskDao {
     int addTask(Task task);
 
     List<Task> getTasks();
+    List<String> getTaskLists();
 
 //    Optional<Product> getProductWithMaxPrice();
 //    Optional<Product> getProductWithMinPrice();

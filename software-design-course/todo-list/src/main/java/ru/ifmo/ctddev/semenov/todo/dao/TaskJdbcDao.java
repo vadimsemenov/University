@@ -11,7 +11,6 @@ import java.util.List;
  * @author  Vadim Semenov (semenov@rain.ifmo.ru)
  */
 public class TaskJdbcDao extends JdbcDaoSupport implements TaskDao {
-
     public TaskJdbcDao(DataSource dataSource) {
         super();
         setDataSource(dataSource);
@@ -29,6 +28,12 @@ public class TaskJdbcDao extends JdbcDaoSupport implements TaskDao {
         return getTasksByRequest(sql);
     }
 
+    @Override
+    public List<String> getTaskLists() {
+        String sql = "SELECT DISTINCT TASKLIST FROM TASKS";
+        return getJdbcTemplate().queryForList(sql, String.class);
+    }
+
 //    @Override
 //    public Optional<Product> getProductWithMaxPrice() {
 //        String sql = "SELECT * FROM TASKS ORDER BY PRICE DESC LIMIT 1";
@@ -43,7 +48,7 @@ public class TaskJdbcDao extends JdbcDaoSupport implements TaskDao {
 //    }
 
     private List<Task> getTasksByRequest(String sql) {
-        return getJdbcTemplate().query(sql, new BeanPropertyRowMapper(Task.class));
+        return getJdbcTemplate().query(sql, BeanPropertyRowMapper.newInstance(Task.class));
     }
 
 }

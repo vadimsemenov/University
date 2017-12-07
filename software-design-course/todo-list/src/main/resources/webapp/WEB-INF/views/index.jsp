@@ -6,21 +6,27 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <head>
-    <title>Add question</title>
+    <title>TODO List</title>
 </head>
 <body>
 
 <h3>Select tasks</h3>
+<%--@elvariable id="filter" type="ru.ifmo.ctddev.semenov.todo.model.Filter"--%>
 <form:form modelAttribute="filter" method="GET" action="/filter-tasks">
-    <form:select path="filter">
-        <form:option value="all">all</form:option>
+    <form:select path="status">
+        <form:options items="${statuses}" />
+        <%--<form:option value="all">all</form:option>--%>
         <%--<form:option value="max">max</form:option>--%>
         <%--<form:option value="min">min</form:option>--%>
+    </form:select>
+    <form:select path="list">
+        <form:option value="" />
+        <form:options items="${lists}" />
     </form:select>
     <input type="submit" value="filter">
 </form:form>
 
-<table>
+<table cellspacing="5" cellpadding="10">
     <c:forEach var="task" items="${tasks}">
     <tr>
         <td>${task.getId()}</td>
@@ -32,6 +38,7 @@
 </table>
 
 <h3>Add new tasks</h3>
+<%--@elvariable id="task" type="ru.ifmo.ctddev.semenov.todo.model.Task"--%>
 <form:form modelAttribute="task" method="POST" action="/add-task">
     <table>
     <tr>

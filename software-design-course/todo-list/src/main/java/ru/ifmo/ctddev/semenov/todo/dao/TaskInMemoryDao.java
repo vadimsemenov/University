@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * @author  Vadim Semenov (semenov@rain.ifmo.ru)
@@ -14,6 +15,7 @@ public class TaskInMemoryDao implements TaskDao {
     private final AtomicInteger lastId = new AtomicInteger(0);
     private final List<Task> tasks = new CopyOnWriteArrayList<>();
 
+    @Override
     public int addTask(Task task) {
         int id = lastId.incrementAndGet();
         task.setId(id);
@@ -21,8 +23,17 @@ public class TaskInMemoryDao implements TaskDao {
         return id;
     }
 
+    @Override
     public List<Task> getTasks() {
-        return new ArrayList(tasks);
+        return new ArrayList<>(tasks);
+    }
+
+    @Override
+    public List<String> getTaskLists() {
+        return tasks.stream()
+                .map(Task::getTaskList)
+                .distinct()
+                .collect(Collectors.toList());
     }
 
 //    public Optional<Task> getProductWithMaxPrice() {
