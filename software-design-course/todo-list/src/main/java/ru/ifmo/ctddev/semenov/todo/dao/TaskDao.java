@@ -13,6 +13,8 @@ public interface TaskDao {
     List<Task> getTasks();
     List<String> getTaskLists();
 
+    void updateTask(int id, boolean complete);
+
 //    Optional<Product> getProductWithMaxPrice();
 //    Optional<Product> getProductWithMinPrice();
 }

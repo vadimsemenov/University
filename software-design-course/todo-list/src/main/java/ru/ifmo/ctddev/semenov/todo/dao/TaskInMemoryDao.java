@@ -36,6 +36,13 @@ public class TaskInMemoryDao implements TaskDao {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public void updateTask(int id, boolean complete) {
+        if (0 <= id && id < tasks.size()) {
+            tasks.get(id).setComplete(complete);
+        }
+    }
+
 //    public Optional<Task> getProductWithMaxPrice() {
 //        return tasks.stream().max(Task.PRICE_COMPARATOR);
 //    }

@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt" %>
+<%@ taglib prefix="td" uri="http://www.springframework.org/tags/form" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -27,12 +28,20 @@
 </form:form>
 
 <table cellspacing="5" cellpadding="10">
-    <c:forEach var="task" items="${tasks}">
+    <c:forEach var="t" items="${tasks}">
     <tr>
-        <td>${task.getId()}</td>
-        <td>${task.getName()}</td>
-        <td>${task.getTaskList()}</td>
-        <td>${task.isDone()}</td>
+        <td>${t.getId()}</td>
+        <td>${t.getName()}</td>
+        <td>${t.getTaskList()}</td>
+        <td>${t.isComplete()}</td>
+        <td>
+            <%--@elvariable id="task" type="ru.ifmo.ctddev.semenov.todo.model.Task"--%>
+            <form:form modelAttribute="task" method="POST" action="change-status">
+                <form:input path="id" value="${t.id}" type="hidden" />
+                <form:input path="complete" value="${t.complete}" type="hidden" />
+                <input type="submit" value="${t.complete ? "reset" : "complete"}">
+            </form:form>
+        </td>
     </tr>
     </c:forEach>
 </table>
@@ -50,8 +59,8 @@
         <td><form:input path="taskList"/></td>
     </tr>
     <tr>
-        <td><form:label path="done">Done:</form:label></td>
-        <td><form:input path="done"/></td>
+        <td><form:label path="complete">Complete:</form:label></td>
+        <td><form:input path="complete"/></td>
     </tr>
         <%--<tr>--%>
             <%--<td><form:label path="price">Price:</form:label></td>--%>

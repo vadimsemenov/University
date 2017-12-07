@@ -31,6 +31,12 @@ public class TaskController {
         return "redirect:/get-tasks";
     }
 
+    @RequestMapping(value = "/change-status", method = RequestMethod.POST)
+    public String changeTaskStatus(@ModelAttribute("task") Task task) {
+        taskDao.updateTask(task.getId(), !task.isComplete());
+        return "redirect:/get-tasks";
+    }
+
     @RequestMapping(value = "/get-tasks", method = RequestMethod.GET)
     public String getTasks(ModelMap map) {
         prepareModelMap(map, taskDao.getTasks());

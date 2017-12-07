@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  */
 public class TaskPredicateFactory {
     private static final Predicate<Task> ALL = task -> true;
-    private static final Predicate<Task> COMPLETE = Task::isDone;
+    private static final Predicate<Task> COMPLETE = Task::isComplete;
     private static final Predicate<Task> INCOMPLETE = COMPLETE.negate();
 
     private static final Map<String, Predicate<Task>> PREDICATES = new HashMap<>();

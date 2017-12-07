@@ -18,8 +18,8 @@ public class TaskJdbcDao extends JdbcDaoSupport implements TaskDao {
 
     @Override
     public int addTask(Task task) {
-        String sql = "INSERT INTO TASKS (NAME, TASKLIST, DONE) VALUES (?, ?, ?)";
-        return getJdbcTemplate().update(sql, task.getName(), task.getTaskList(), task.isDone());
+        String sql = "INSERT INTO TASKS (NAME, TASKLIST, COMPLETE) VALUES (?, ?, ?)";
+        return getJdbcTemplate().update(sql, task.getName(), task.getTaskList(), task.isComplete());
     }
 
     @Override
@@ -32,6 +32,12 @@ public class TaskJdbcDao extends JdbcDaoSupport implements TaskDao {
     public List<String> getTaskLists() {
         String sql = "SELECT DISTINCT TASKLIST FROM TASKS";
         return getJdbcTemplate().queryForList(sql, String.class);
+    }
+
+    @Override
+    public void updateTask(int id, boolean complete) {
+        String sql = "UPDATE TASKS SET COMPLETE = '" + (complete ? 1 : 0) + "' WHERE ID = " + id;
+        getJdbcTemplate().update(sql);
     }
 
 //    @Override

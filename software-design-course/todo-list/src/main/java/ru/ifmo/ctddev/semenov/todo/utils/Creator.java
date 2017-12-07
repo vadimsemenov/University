@@ -19,7 +19,7 @@ public class Creator {
                     "(ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
                     " NAME           TEXT    NOT NULL, " +
                     " TASKLIST       TEXT    NOT NULL, " +
-                    " DONE           TEXT    NOT NULL)";
+                    " COMPLETE       CHAR    NOT NULL)";
             stmt.executeUpdate(sql);
         } catch (Exception e) {
             throw new RuntimeException(e);

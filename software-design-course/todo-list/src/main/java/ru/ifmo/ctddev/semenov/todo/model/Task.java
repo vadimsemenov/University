@@ -7,16 +7,16 @@ public class Task {
     private int id;
     private String name;
     private String taskList;
-    private boolean done;
+    private boolean complete;
 
     public Task() {
     }
 
-    public Task(int id, String name, String taskList, boolean done) {
+    public Task(int id, String name, String taskList, boolean complete) {
         this.id = id;
         this.name = name;
         this.taskList = taskList;
-        this.done = done;
+        this.complete = complete;
     }
 
     public int getId() {
@@ -35,12 +35,12 @@ public class Task {
         this.name = name;
     }
 
-    public boolean isDone() {
-        return done;
+    public boolean isComplete() {
+        return complete;
     }
 
-    public void setDone(boolean done) {
-        this.done = done;
+    public void setComplete(boolean complete) {
+        this.complete = complete;
     }
 
     public String getTaskList() {
@@ -49,5 +49,15 @@ public class Task {
 
     public void setTaskList(String taskList) {
         this.taskList = taskList;
+    }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", taskList='" + taskList + '\'' +
+                ", complete=" + complete +
+                '}';
     }
 }
