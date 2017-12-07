@@ -40,6 +40,11 @@ public class TaskJdbcDao extends JdbcDaoSupport implements TaskDao {
         getJdbcTemplate().update(sql);
     }
 
+    @Override
+    public void removeTask(int id) {
+        String sql = "DELETE FROM TASKS WHERE ID = " + id;
+        getJdbcTemplate().update(sql);
+    }
 //    @Override
 //    public Optional<Product> getProductWithMaxPrice() {
 //        String sql = "SELECT * FROM TASKS ORDER BY PRICE DESC LIMIT 1";

@@ -37,6 +37,12 @@ public class TaskController {
         return "redirect:/get-tasks";
     }
 
+    @RequestMapping(value = "/remove-task", method = RequestMethod.POST)
+    public String removeTask(@ModelAttribute("task") Task task) {
+        taskDao.removeTask(task.getId());
+        return "redirect:/get-tasks";
+    }
+
     @RequestMapping(value = "/get-tasks", method = RequestMethod.GET)
     public String getTasks(ModelMap map) {
         prepareModelMap(map, taskDao.getTasks());

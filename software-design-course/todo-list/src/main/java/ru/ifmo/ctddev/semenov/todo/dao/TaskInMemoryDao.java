@@ -43,7 +43,13 @@ public class TaskInMemoryDao implements TaskDao {
         }
     }
 
-//    public Optional<Task> getProductWithMaxPrice() {
+    @Override
+    public void removeTask(int id) {
+        if (0 <= id && id < tasks.size()) {
+            tasks.remove(id);
+        }
+    }
+    //    public Optional<Task> getProductWithMaxPrice() {
 //        return tasks.stream().max(Task.PRICE_COMPARATOR);
 //    }
 

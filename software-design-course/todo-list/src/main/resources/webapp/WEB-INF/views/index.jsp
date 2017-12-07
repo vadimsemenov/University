@@ -36,10 +36,16 @@
         <td>${t.isComplete()}</td>
         <td>
             <%--@elvariable id="task" type="ru.ifmo.ctddev.semenov.todo.model.Task"--%>
-            <form:form modelAttribute="task" method="POST" action="change-status">
+            <form:form modelAttribute="task" method="POST" action="/change-status">
                 <form:input path="id" value="${t.id}" type="hidden" />
                 <form:input path="complete" value="${t.complete}" type="hidden" />
                 <input type="submit" value="${t.complete ? "reset" : "complete"}">
+            </form:form>
+        </td>
+        <td>
+            <form:form modelAttribute="task" method="POST" action="/remove-task">
+                <form:input path="id" value="${t.id}" type="hidden" />
+                <input type="submit" value="remove">
             </form:form>
         </td>
     </tr>

@@ -14,6 +14,7 @@ public interface TaskDao {
     List<String> getTaskLists();
 
     void updateTask(int id, boolean complete);
+    void removeTask(int id);
 
 //    Optional<Product> getProductWithMaxPrice();
 //    Optional<Product> getProductWithMinPrice();
