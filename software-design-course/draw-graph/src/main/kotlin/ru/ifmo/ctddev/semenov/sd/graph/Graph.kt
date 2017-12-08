@@ -1,5 +1,6 @@
 package ru.ifmo.ctddev.semenov.sd.graph
 
+import ru.ifmo.ctddev.semenov.sd.graph.draw.DrawingApi
 
 
 interface Graph {
@@ -13,9 +14,13 @@ data class Vertex(val name: String)
 
 data class Edge(val from: Vertex, val to: Vertex)
 
-abstract class AbstractGraph: Graph {
+abstract class AbstractDrawableGraph(private val drawingApi: DrawingApi): Graph {
     private val vertexMapping: MutableMap<Vertex, Int> = hashMapOf()
     private val vertices: MutableList<Vertex> = arrayListOf()
+
+    fun drawGraph() {
+        TODO("Not implemented yet")
+    }
 
     fun exists(vertex: Vertex) = vertexMapping.containsKey(vertex)
 
@@ -38,7 +43,7 @@ abstract class AbstractGraph: Graph {
     }
 }
 
-class MatrixGraph(val verticesQty: Int): AbstractGraph() {
+class MatrixGraph(private val verticesQty: Int, drawingApi: DrawingApi): AbstractDrawableGraph(drawingApi) {
     private val graph: Array<Array<Edge?>> = Array(verticesQty) { Array(verticesQty) { null as Edge? } }
 
     override fun addEdge(edge: Edge) {
@@ -71,7 +76,7 @@ class MatrixGraph(val verticesQty: Int): AbstractGraph() {
     }
 }
 
-class AdjacencyListGraph: AbstractGraph() {
+class AdjacencyListGraph(drawingApi: DrawingApi): AbstractDrawableGraph(drawingApi) {
     private val adjacencyList: MutableList<MutableList<Edge>> = arrayListOf()
 
     override fun addEdge(edge: Edge) {
