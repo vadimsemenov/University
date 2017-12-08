@@ -15,9 +15,9 @@ interface EventStatistic<out T> {
     fun printStatistic()
 }
 
-fun Instant.inside(begin: Instant, end: Instant) = this in begin..end
+fun Instant.inside(begin: Instant, end: Instant) = begin <= this && this < end
 
-data class Event(val eventName: EventName, val timestamp: Instant, val comment: String?) {
+data class Event(val eventName: EventName, val timestamp: Instant, private val comment: String?) {
     override fun toString(): String {
         return "Event(eventName=$eventName, timestamp=$timestamp" +
                 (if (comment == null) "" else ", comment=$comment") + ")"
@@ -54,20 +54,15 @@ class RppStatistic(private val clock: Clock, private val periodQty: Int, private
 
     override fun incEvent(name: EventName, comment: String?) = sync { now ->
         val event = Event(name, now, comment)
-        while (queue.isEmpty() || queue.last.end <= event.timestamp) {
-            val from = if (queue.isEmpty()) now.truncatedTo(timeUnit) else queue.last.end
-            val rpp = Rpp(from, from.plus(1, timeUnit))
-            queue.add(rpp)
-        }
         assert(event.timestamp.inside(queue.last.begin, queue.last.end))
         queue.last.put(event)
     }
 
-    override fun getEventStatisticByName(name: EventName): Rpp = sync { _ ->
+    override fun getEventStatisticByName(name: EventName): Rpp = sync {
         queue.last.filter { it.eventName == name }
     }
 
-    override fun getAllEventStatistic(): List<Rpp> = sync { _ ->
+    override fun getAllEventStatistic(): List<Rpp> = sync {
         listOf(*queue.toTypedArray())
     }
 
@@ -87,7 +82,15 @@ class RppStatistic(private val clock: Clock, private val periodQty: Int, private
 
     private fun <T> sync(action: RppStatistic.(Instant) -> T): T {
         val now = clock.now()
-        while (queue.isNotEmpty() && queue.peek().end < now.minus(periodQty.toLong(), timeUnit)) {
+        if (queue.isEmpty()) {
+            val from = now.truncatedTo(timeUnit).minus(periodQty.toLong(), timeUnit)
+            queue += Rpp(from, from.plus(1, timeUnit))
+        }
+        while (!now.inside(queue.last.begin, queue.last.end)) {
+            val from = queue.last.end
+            queue += Rpp(from, from.plus(1, timeUnit))
+        }
+        while (queue.peek().end < now.minus(periodQty.toLong(), timeUnit)) {
             queue.poll()
         }
         return action(now)

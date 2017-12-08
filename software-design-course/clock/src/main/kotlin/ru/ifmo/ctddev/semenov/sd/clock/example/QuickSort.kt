@@ -5,7 +5,6 @@ import ru.ifmo.ctddev.semenov.sd.clock.EventStatistic
 import ru.ifmo.ctddev.semenov.sd.clock.Rpp
 import ru.ifmo.ctddev.semenov.sd.clock.RppStatistic
 import java.time.temporal.ChronoUnit
-import java.util.*
 
 
 fun main(args: Array<String>) {

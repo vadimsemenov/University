@@ -11,6 +11,10 @@ class ActualClock: Clock {
     override fun now(): Instant = Instant.now()
 }
 
-class SettableClock(var instant: Instant): Clock {
+class SettableClock(private var instant: Instant): Clock {
     override fun now(): Instant = instant
+
+    fun set(now: Instant) {
+        instant = now
+    }
 }

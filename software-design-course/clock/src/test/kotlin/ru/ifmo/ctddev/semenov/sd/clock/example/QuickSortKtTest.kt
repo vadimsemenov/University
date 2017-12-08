@@ -6,7 +6,6 @@ import java.util.*
 
 
 internal class QuickSortKtTest {
-
     @Test
     fun quickSortPermutationsUpTo7() {
         for (p in 2..7) {
