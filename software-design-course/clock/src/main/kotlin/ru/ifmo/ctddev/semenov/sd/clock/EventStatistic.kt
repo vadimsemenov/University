@@ -17,7 +17,12 @@ interface EventStatistic<out T> {
 
 fun Instant.inside(begin: Instant, end: Instant) = this in begin..end
 
-data class Event(val eventName: EventName, val timestamp: Instant, val comment: String?)
+data class Event(val eventName: EventName, val timestamp: Instant, val comment: String?) {
+    override fun toString(): String {
+        return "Event(eventName=$eventName, timestamp=$timestamp" +
+                (if (comment == null) "" else ", comment=$comment") + ")"
+    }
+}
 
 class Rpp(val begin: Instant, val end: Instant) {
     private val events: MutableList<Event> = arrayListOf()
@@ -38,6 +43,10 @@ class Rpp(val begin: Instant, val end: Instant) {
         result.events += events.filter(predicate)
         return result
     }
+
+    override fun toString(): String {
+        return "Requests per period [$begin, $end): $events"
+    }
 }
 
 class RppStatistic(private val clock: Clock, private val periodQty: Int, private val timeUnit: TemporalUnit): EventStatistic<Rpp> {
@@ -46,9 +55,9 @@ class RppStatistic(private val clock: Clock, private val periodQty: Int, private
     override fun incEvent(name: EventName, comment: String?) = sync { now ->
         val event = Event(name, now, comment)
         while (queue.isEmpty() || queue.last.end <= event.timestamp) {
-            val from = queue.last.end
+            val from = if (queue.isEmpty()) now.truncatedTo(timeUnit) else queue.last.end
             val rpp = Rpp(from, from.plus(1, timeUnit))
-            queue.push(rpp)
+            queue.add(rpp)
         }
         assert(event.timestamp.inside(queue.last.begin, queue.last.end))
         queue.last.put(event)
@@ -78,7 +87,7 @@ class RppStatistic(private val clock: Clock, private val periodQty: Int, private
 
     private fun <T> sync(action: RppStatistic.(Instant) -> T): T {
         val now = clock.now()
-        while (queue.isNotEmpty() && queue.peek().end > now.plus(periodQty.toLong(), timeUnit)) {
+        while (queue.isNotEmpty() && queue.peek().end < now.minus(periodQty.toLong(), timeUnit)) {
             queue.poll()
         }
         return action(now)
