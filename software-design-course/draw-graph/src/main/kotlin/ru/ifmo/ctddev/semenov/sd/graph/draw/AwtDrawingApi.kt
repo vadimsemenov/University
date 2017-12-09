@@ -5,9 +5,9 @@ import java.awt.Graphics2D
 
 
 class AwtDrawingApi(private val graphics: Graphics2D, private val width: Int, private val height: Int): DrawingApi {
-    private val circleColor = Color.RED
-    private val lineColor = Color.DARK_GRAY
-    private val textColor = Color.BLACK
+    private val circleColor = Color.RED!!
+    private val lineColor = Color.DARK_GRAY!!
+    private val textColor = Color.BLACK!!
 
     override fun getDrawingAreaWidth(): Int = width
 
