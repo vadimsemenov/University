@@ -49,6 +49,10 @@ abstract class AbstractDrawableGraph: Graph {
 
     fun exists(vertex: Vertex) = vertexMapping.containsKey(vertex)
 
+    fun addVertex(vertex: Vertex) {
+        vertex(vertex)
+    }
+
     protected fun vertex(vertex: Vertex): Int = vertexMapping.computeIfAbsent(vertex) {
         checkSize(vertices.size + 1)
         newVertex(vertex, vertices.size)

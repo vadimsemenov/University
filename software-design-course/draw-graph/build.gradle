@@ -13,6 +13,7 @@ group 'ru.ifmo.ctddev.semenov.sd'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'kotlin'
+apply plugin: 'application'
 
 repositories {
     mavenCentral()
@@ -27,4 +28,15 @@ compileKotlin {
 }
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
+}
+
+mainClassName = 'ru.ifmo.ctddev.semenov.sd.graph.MainKt'
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'ru.ifmo.ctddev.semenov.sd.graph.MainKt'
+    }
+
+    // NEW LINE HERE !!!
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
 }
