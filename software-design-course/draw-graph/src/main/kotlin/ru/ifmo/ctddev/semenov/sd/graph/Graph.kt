@@ -1,6 +1,9 @@
 package ru.ifmo.ctddev.semenov.sd.graph
 
-import ru.ifmo.ctddev.semenov.sd.graph.draw.DrawingApi
+import ru.ifmo.ctddev.semenov.sd.graph.draw.*
+import kotlin.math.cos
+import kotlin.math.min
+import kotlin.math.sin
 
 
 interface Graph {
@@ -14,23 +17,46 @@ data class Vertex(val name: String)
 
 data class Edge(val from: Vertex, val to: Vertex)
 
-abstract class AbstractDrawableGraph(private val drawingApi: DrawingApi): Graph {
+abstract class AbstractDrawableGraph: Graph {
+    lateinit var drawingApi: DrawingApi
+    var vertexRadius = 50
+
     private val vertexMapping: MutableMap<Vertex, Int> = hashMapOf()
     private val vertices: MutableList<Vertex> = arrayListOf()
 
     fun drawGraph() {
-        TODO("Not implemented yet")
+        val bound = Point(drawingApi.getDrawingAreaWidth(), drawingApi.getDrawingAreaHeight())
+        val radius = min(bound.x, bound.y) / 2 - 2 * vertexRadius
+        if (radius < 0) throw IllegalStateException("Too small area")
+        val center = bound / 2.0
+        val centers = (0 until vertices.size).map {
+            val angle = it * 2 * Math.PI / vertices.size
+            val circle = Circle(center + Point(cos(angle), sin(angle)) * radius,
+                    vertexRadius.toDouble())
+            drawingApi.drawCircle(circle, vertices[it].name)
+            circle
+        }
+        vertices.forEach {
+            getOutgoing(it).forEach {
+                val fromCenter = centers[vertex(it.from)]
+                val toCenter   = centers[vertex(it.to)]
+                val a = fromCenter.center - (fromCenter.center - center).norm() * vertexRadius.toDouble()
+                val b = toCenter.center - (toCenter.center - center).norm() * vertexRadius.toDouble()
+                drawingApi.drawLine(a, b)
+            }
+        }
     }
 
     fun exists(vertex: Vertex) = vertexMapping.containsKey(vertex)
 
     protected fun vertex(vertex: Vertex): Int = vertexMapping.computeIfAbsent(vertex) {
         checkSize(vertices.size + 1)
+        newVertex(vertex, vertices.size)
         vertices += vertex
         vertices.size - 1
     }
 
-    protected open fun newVertex(vertex: Vertex) {
+    protected open fun newVertex(vertex: Vertex, id: Int) {
     }
 
     protected open fun checkSize(verticesQty: Int) {
@@ -43,7 +69,7 @@ abstract class AbstractDrawableGraph(private val drawingApi: DrawingApi): Graph 
     }
 }
 
-class MatrixGraph(private val verticesQty: Int, drawingApi: DrawingApi): AbstractDrawableGraph(drawingApi) {
+class MatrixGraph(private val verticesQty: Int): AbstractDrawableGraph() {
     private val graph: Array<Array<Edge?>> = Array(verticesQty) { Array(verticesQty) { null as Edge? } }
 
     override fun addEdge(edge: Edge) {
@@ -76,11 +102,13 @@ class MatrixGraph(private val verticesQty: Int, drawingApi: DrawingApi): Abstrac
     }
 }
 
-class AdjacencyListGraph(drawingApi: DrawingApi): AbstractDrawableGraph(drawingApi) {
+class AdjacencyListGraph: AbstractDrawableGraph() {
     private val adjacencyList: MutableList<MutableList<Edge>> = arrayListOf()
 
     override fun addEdge(edge: Edge) {
-        adjacencyList[vertex(edge.from)].add(edge)
+        val from = vertex(edge.from)
+        vertex(edge.to)
+        adjacencyList[from].add(edge)
     }
 
     override fun removeEdge(edge: Edge) {
@@ -97,8 +125,8 @@ class AdjacencyListGraph(drawingApi: DrawingApi): AbstractDrawableGraph(drawingA
         return adjacencyList[vertex(vertex)]
     }
 
-    override fun newVertex(vertex: Vertex) {
-        super.newVertex(vertex)
-        adjacencyList[vertex(vertex)] = arrayListOf()
+    override fun newVertex(vertex: Vertex, id: Int) {
+        super.newVertex(vertex, id)
+        while (adjacencyList.size <= id) adjacencyList.add(arrayListOf())
     }
 }
