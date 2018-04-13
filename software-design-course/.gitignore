@@ -1,6 +1,8 @@
 target/
 out/
 .idea/
+build/
+.gradle/
 
 *.db
 *.iml
