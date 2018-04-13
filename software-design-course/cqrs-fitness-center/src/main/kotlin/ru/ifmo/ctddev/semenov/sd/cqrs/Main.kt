@@ -1,10 +1,25 @@
 package ru.ifmo.ctddev.semenov.sd.cqrs
 
+import io.ktor.server.engine.commandLineEnvironment
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
 import java.time.Duration
 import java.time.LocalDateTime
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.atomic.AtomicLong
+import kotlin.math.max
 
+
+fun main(args: Array<String>) {
+    val repo = InMemoryRepo()
+    manager = Manager(repo)
+    turnstile = Turnstile(repo)
+    summary = Summary(repo)
+    embeddedServer(
+            factory = Netty,
+            environment = commandLineEnvironment(args)
+    ).start(wait = true)
+}
 
 typealias Uid = Long
 
@@ -112,16 +127,20 @@ class Summary(private val repo: EventsRepository) {
     fun averageVisitsPerWeek(
             uid: Uid,
             from: LocalDateTime = LocalDateTime.MIN,
-            to: LocalDateTime = LocalDateTime.now()
+            to: LocalDateTime = LocalDateTime.MAX
     ): Double {
         var qty = 0L
         var firstVisit: LocalDateTime? = null
+        var lastVisit: LocalDateTime? = null
         for (event in repo.getEvents(uid)) {
             if (event is UserCheckined && event.time in from..to) {
                 qty++
                 firstVisit = firstVisit ?: event.time
+                lastVisit = event.time
             }
         }
-        return if (firstVisit == null) 0.0 else qty / 7.0
+        val activeDays = if (firstVisit == null) 1L else max(1, Duration.between(firstVisit, lastVisit).toDays())
+        log.debug("qty=$qty, activeDays=$activeDays")
+        return qty / activeDays.toDouble()
     }
 }
