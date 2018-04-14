@@ -1,0 +1,44 @@
+buildscript {
+    ext.kotlin_version = '1.2.31'
+    ext.mongo_driver_version = '1.5.0'
+    ext.reactivex_version = '1.3.8'
+    ext.rxnetty_version = '0.5.2'
+    ext.gson_version = '2.8.2'
+    ext.bson_version = '3.6.3'
+    ext.junit_version = '5.1.1'
+
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+group 'ru.ifmo.ctddev.semenov.sd'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'kotlin'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "io.reactivex:rxjava:$reactivex_version"
+    compile "io.reactivex:rxnetty-http:$rxnetty_version"
+    compile "io.reactivex:rxnetty-common:$rxnetty_version"
+    compile "org.mongodb:mongodb-driver-rx:$mongo_driver_version"
+    compile "org.mongodb:bson:$bson_version"
+    compile "com.google.code.gson:gson:$gson_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+
+    testCompile "org.junit.jupiter:junit-jupiter-api:$junit_version"
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
